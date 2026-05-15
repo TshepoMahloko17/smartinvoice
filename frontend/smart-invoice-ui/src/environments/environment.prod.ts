@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: "https://api.smartinvoice.app/api",
+  apiUrl: "https://smartinvoice-production.up.railway.app/api",
 };
