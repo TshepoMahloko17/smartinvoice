@@ -28,12 +28,18 @@
 ```bash
 git clone https://github.com/TshepoMahloko17/smartinvoice.git
 cd smartinvoice
-docker compose up
+docker compose up --build
 ```
 
-- API: `http://localhost:8080`
-- Swagger: `http://localhost:8080/swagger`
+| Service       | URL                           |
+| ------------- | ----------------------------- |
+| Frontend      | http://localhost:4200         |
+| API / Swagger | http://localhost:8080/swagger |
+| Database      | localhost:5432                |
+
 - Database is auto-created and seeded on first run
+- Nginx inside the frontend container proxies `/api` calls to the backend — no CORS setup needed
+- To stop: `docker compose down` (add `-v` to wipe the database)
 
 ---
 
