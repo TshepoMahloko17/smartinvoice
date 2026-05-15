@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "dotnet publish SmartInvoice.API/SmartInvoice.API.csproj -c Release -o out"
+
+[deploy]
+startCommand = "dotnet out/SmartInvoice.API.dll"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
