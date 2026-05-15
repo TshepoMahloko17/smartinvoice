@@ -11,6 +11,9 @@ obj/
 
 # Secrets / config overrides
 appsettings.Development.json
+
+# Internal design reference
+code.html
 *.pfx
 *.p12
 
