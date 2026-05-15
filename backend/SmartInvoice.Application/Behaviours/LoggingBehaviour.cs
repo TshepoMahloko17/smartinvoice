@@ -17,6 +17,8 @@ public class LoggingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest,
         CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
+        // Log only the request TYPE NAME — never serialize the request object,
+        // as it may contain passwords, tokens, or other sensitive fields.
         _logger.LogInformation("Handling {RequestName}", requestName);
 
         var response = await next();
