@@ -78,6 +78,8 @@ handle contracts, and visualize financial performance — all in one place.
 - 🌗 **Theme Toggle** — Light / Dark mode support
 - ⚠️ **Error Feedback** — Global HTTP error interceptor displays contextual
   snackbar messages for all API failures (400, 403, 404, 429, 5xx)
+- ♿ **Accessibility** — All icon buttons carry descriptive `aria-label`
+  attributes for screen reader compatibility
 
 ---
 
