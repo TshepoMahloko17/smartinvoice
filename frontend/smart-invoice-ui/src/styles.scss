@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @use '@angular/cdk' as cdk;
+@include cdk.a11y();
 @include cdk.overlay();
 @include cdk.text-field();
 
