@@ -310,3 +310,11 @@ html, body {
   }
 }
 
+// Error snackbar
+.snackbar-error .mdc-snackbar__surface {
+  background-color: #dc2626 !important;
+  color: #fff !important;
+}
+.snackbar-error .mat-mdc-snack-bar-action {
+  color: #fecaca !important;
+}
