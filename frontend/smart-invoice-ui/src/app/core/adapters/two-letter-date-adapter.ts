@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { MatNativeDateAdapter } from "@angular/material/core";
+import { NativeDateAdapter } from "@angular/material/core";
 
 @Injectable()
-export class TwoLetterDateAdapter extends MatNativeDateAdapter {
+export class TwoLetterDateAdapter extends NativeDateAdapter {
   override getDayOfWeekNames(
     style: "long" | "short" | "narrow"
   ): string[] {
