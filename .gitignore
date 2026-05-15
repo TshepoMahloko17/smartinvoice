@@ -1,0 +1,29 @@
+# ── .NET ──────────────────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.ncrunch*
+
+# Runtime logs
+**/logs/
+
+# Secrets / config overrides
+appsettings.Development.json
+*.pfx
+*.p12
+
+# NuGet
+*.nupkg
+.nuget/
+
+# ── Angular / Node ─────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.angular/
+*.js.map
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

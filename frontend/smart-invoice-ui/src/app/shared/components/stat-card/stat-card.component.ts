@@ -1,0 +1,61 @@
+import { Component, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+
+@Component({
+  selector: "app-stat-card",
+  standalone: true,
+  imports: [CommonModule, MatIconModule],
+  template: `
+    <div class="card p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div
+          class="rounded-xl p-3"
+          [style.background]="iconBg"
+        >
+          <mat-icon
+            [style.color]="iconColor"
+            style="font-size:22px; width:22px; height:22px;"
+            >{{ icon }}</mat-icon
+          >
+        </div>
+        @if (changeLabel !== undefined) {
+          <span class="text-xs font-semibold text-green-600">{{
+            changeLabel
+          }}</span>
+        } @else if (change != null) {
+          <span
+            class="text-xs font-semibold flex items-center gap-0.5"
+            [class.text-green-600]="change >= 0"
+            [class.text-red-500]="change < 0"
+          >
+            {{ change >= 0 ? "↑" : "↓" }} {{ change >= 0 ? "+" : ""
+            }}{{ change }}%
+          </span>
+        }
+      </div>
+      <p
+        class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1"
+      >
+        {{ label }}
+      </p>
+      <p class="text-2xl font-bold text-gray-900">{{ value }}</p>
+      @if (subtitle) {
+        <p
+          class="text-xs text-gray-400 mt-1"
+          [innerHTML]="subtitle"
+        ></p>
+      }
+    </div>
+  `,
+})
+export class StatCardComponent {
+  @Input() label = "";
+  @Input() value = "";
+  @Input() icon = "info";
+  @Input() iconColor = "#0052cb";
+  @Input() iconBg = "#e8f0fe";
+  @Input() change?: number | null;
+  @Input() changeLabel?: string;
+  @Input() subtitle?: string;
+}

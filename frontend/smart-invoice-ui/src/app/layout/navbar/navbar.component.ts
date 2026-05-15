@@ -1,0 +1,257 @@
+import { Component, OnInit, HostListener, inject } from "@angular/core";
+import { Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatMenuModule } from "@angular/material/menu";
+import { AuthService } from "../../core/services/auth.service";
+import { ThemeService } from "../../core/services/theme.service";
+import { DashboardService } from "../../features/dashboard/services/dashboard.service";
+
+@Component({
+  selector: "app-navbar",
+  standalone: true,
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatMenuModule],
+  template: `
+    <header
+      class="fixed top-0 left-64 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm flex justify-between items-center px-6 py-3"
+    >
+      <!-- Search -->
+      <div class="flex-1 flex justify-center">
+        <div class="relative w-full max-w-xl">
+          <span
+            class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none"
+          >
+            <mat-icon style="font-size:20px; width:20px; height:20px;"
+              >search</mat-icon
+            >
+          </span>
+          <input
+            type="text"
+            placeholder="Search invoices, clients, or payments..."
+            class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            style="font-family: inherit;"
+          />
+        </div>
+      </div>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-4 ml-4">
+        <!-- Notification bell -->
+        <div class="relative">
+          <button
+            class="relative p-2 text-slate-500 hover:text-primary transition-colors border-0 bg-transparent outline-none cursor-pointer"
+            (click)="toggleNotif($event)"
+          >
+            <mat-icon style="font-size:24px; width:24px; height:24px;"
+              >notifications</mat-icon
+            >
+            @if (pendingCount > 0) {
+              <span
+                class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold leading-none"
+              >
+                {{ pendingCount }}
+              </span>
+            }
+          </button>
+
+          <!-- Notification dropdown -->
+          @if (showNotif) {
+            <div
+              class="absolute right-0 top-full mt-2 w-80 rounded-2xl overflow-hidden"
+              style="z-index:1000; box-shadow: 0 20px 60px -10px rgba(0,0,0,0.18), 0 4px 20px -4px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.07);"
+            >
+              <!-- Header -->
+              <div
+                class="flex items-center justify-between px-5 py-3.5"
+                style="background: linear-gradient(135deg, #0052cb 0%, #1a75ff 100%);"
+              >
+                <div class="flex items-center gap-2">
+                  <mat-icon
+                    style="font-size:18px; width:18px; height:18px; color:rgba(255,255,255,0.9);"
+                    >notifications</mat-icon
+                  >
+                  <span class="text-sm font-semibold text-white tracking-wide"
+                    >Notifications</span
+                  >
+                </div>
+                @if (pendingCount > 0) {
+                  <span
+                    class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    style="background:rgba(255,255,255,0.25); color:#fff; letter-spacing:0.03em;"
+                    >{{ pendingCount }} new</span
+                  >
+                }
+              </div>
+
+              <!-- Body -->
+              <div class="bg-white">
+                @if (pendingCount > 0) {
+                  <button
+                    class="w-full flex items-center gap-3.5 px-5 py-4 text-left group"
+                    style="border:none; background:none; cursor:pointer; transition: background 0.15s;"
+                    (mouseenter)="hovering = true"
+                    (mouseleave)="hovering = false"
+                    [style.background]="hovering ? '#f8faff' : 'white'"
+                    (click)="goToPending()"
+                  >
+                    <span
+                      class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); box-shadow: 0 2px 8px rgba(249,115,22,0.15);"
+                    >
+                      <mat-icon
+                        style="font-size:20px; width:20px; height:20px; color:#f97316;"
+                        >pending_actions</mat-icon
+                      >
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <p
+                        class="text-sm font-semibold text-gray-800 leading-tight"
+                      >
+                        {{ pendingCount }} invoice{{
+                          pendingCount === 1 ? "" : "s"
+                        }}
+                        pending
+                      </p>
+                      <p class="text-xs text-gray-400 mt-0.5">
+                        Awaiting payment
+                      </p>
+                    </div>
+                    <div
+                      class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                      style="background:#f0f4ff;"
+                    >
+                      <mat-icon
+                        style="font-size:14px; width:14px; height:14px; color:#0052cb;"
+                        >chevron_right</mat-icon
+                      >
+                    </div>
+                  </button>
+                } @else {
+                  <div
+                    class="flex flex-col items-center justify-center py-8 px-5 text-center"
+                  >
+                    <span
+                      class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                      style="background:#f0f4ff;"
+                    >
+                      <mat-icon
+                        style="font-size:24px; width:24px; height:24px; color:#0052cb;"
+                        >check_circle</mat-icon
+                      >
+                    </span>
+                    <p class="text-sm font-semibold text-gray-700">
+                      All caught up!
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                      No new notifications
+                    </p>
+                  </div>
+                }
+              </div>
+
+              <!-- Footer -->
+              <div
+                class="bg-white border-t"
+                style="border-color:#f0f4ff;"
+              >
+                <button
+                  class="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold transition-colors"
+                  style="border:none; background:none; cursor:pointer; color:#0052cb;"
+                  (mouseenter)="hoveringFooter = true"
+                  (mouseleave)="hoveringFooter = false"
+                  [style.background]="
+                    hoveringFooter ? '#f0f4ff' : 'transparent'
+                  "
+                  (click)="goToInvoices()"
+                >
+                  <mat-icon style="font-size:16px; width:16px; height:16px;"
+                    >receipt_long</mat-icon
+                  >
+                  View all invoices
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Theme toggle -->
+        <button
+          class="p-2 text-slate-500 hover:text-primary transition-colors border-0 bg-transparent outline-none cursor-pointer"
+          (click)="theme.toggle()"
+          [title]="
+            theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'
+          "
+        >
+          <mat-icon style="font-size:24px; width:24px; height:24px;">{{
+            theme.isDark ? "light_mode" : "contrast"
+          }}</mat-icon>
+        </button>
+
+        <!-- Divider -->
+        <div class="h-8 w-px bg-slate-200 mx-1"></div>
+
+        <!-- User avatar -->
+        <button
+          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold hover:ring-2 transition-all cursor-pointer border-0 outline-none"
+          style="background:#0052cb;"
+          [matMenuTriggerFor]="userMenu"
+        >
+          {{ initials }}
+        </button>
+        <mat-menu #userMenu>
+          <button
+            mat-menu-item
+            (click)="auth.logout()"
+          >
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+  `,
+})
+export class NavbarComponent implements OnInit {
+  readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
+  readonly router = inject(Router);
+  private readonly dashboardSvc = inject(DashboardService);
+
+  pendingCount = 0;
+  showNotif = false;
+  hovering = false;
+  hoveringFooter = false;
+
+  ngOnInit(): void {
+    this.dashboardSvc
+      .getStats()
+      .subscribe((s) => (this.pendingCount = s.pendingInvoicesCount));
+  }
+
+  toggleNotif(event: MouseEvent): void {
+    event.stopPropagation();
+    this.showNotif = !this.showNotif;
+  }
+
+  @HostListener("document:click")
+  onDocumentClick(): void {
+    this.showNotif = false;
+  }
+
+  goToPending(): void {
+    this.showNotif = false;
+    this.router.navigate(["/invoices"], { queryParams: { status: 1 } });
+  }
+
+  goToInvoices(): void {
+    this.showNotif = false;
+    this.router.navigate(["/invoices"]);
+  }
+
+  get initials(): string {
+    const u = this.auth.currentUser;
+    if (!u) return "U";
+    return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
+  }
+}
