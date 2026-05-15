@@ -9,7 +9,6 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatOptionModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
-import { MatNativeDateModule } from "@angular/material/core";
 import { ContractService } from "../../services/contract.service";
 import { ClientService } from "../../../clients/services/client.service";
 import { Client } from "../../../../shared/models/client.model";
@@ -28,7 +27,6 @@ import { Client } from "../../../../shared/models/client.model";
     MatSelectModule,
     MatOptionModule,
     MatDatepickerModule,
-    MatNativeDateModule,
   ],
   template: `
     <div class="max-w-2xl mx-auto space-y-5">

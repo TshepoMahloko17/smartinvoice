@@ -209,6 +209,18 @@ html, body {
     display: block !important;
   }
 
+  // Hide the decorative month label row (causes duplicate "MAY 2026" in header)
+  .mat-calendar-body-label {
+    visibility: hidden !important;
+    font-size: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+  }
+
+  .mat-calendar-body-hidden-label {
+    display: none !important;
+  }
+
   table.mat-calendar-table {
     width: 100% !important;
     table-layout: fixed !important;
@@ -245,15 +257,6 @@ html, body {
     overflow: hidden !important;
     white-space: nowrap !important;
     max-width: 40px !important;
-  }
-
-  td.mat-calendar-body-label {
-    display: table-cell !important;
-    padding: 0 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-align: left !important;
-    padding-left: 8px !important;
   }
 
   td.mat-calendar-body-cell-container {
