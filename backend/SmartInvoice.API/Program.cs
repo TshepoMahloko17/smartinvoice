@@ -92,6 +92,7 @@ app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 // Seed database on startup
 await SmartInvoice.API.Data.DbSeeder.SeedAsync(app.Services);
