@@ -22,9 +22,10 @@ public class PaymentsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
-        [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 10,
+        [FromQuery] Guid? invoiceId = null, CancellationToken ct = default)
     {
-        var result = await _mediator.Send(new GetPaymentsQuery(_currentUser.UserId!.Value, page, pageSize), ct);
+        var result = await _mediator.Send(new GetPaymentsQuery(_currentUser.UserId!.Value, page, pageSize, invoiceId), ct);
         return Ok(result);
     }
 

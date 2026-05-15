@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from "@angular/core";
-import { CommonModule, CurrencyPipe } from "@angular/common";
+import { CommonModule, CurrencyPipe, DatePipe } from "@angular/common";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -7,7 +7,9 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatDialog } from "@angular/material/dialog";
 import { filter, switchMap } from "rxjs";
 import { InvoiceService } from "../../services/invoice.service";
+import { PaymentService } from "../../../../features/payments/services/payment.service";
 import { Invoice } from "../../../../shared/models/invoice.model";
+import { Payment } from "../../../../shared/models/payment.model";
 import { StatusBadgeComponent } from "../../../../shared/components/status-badge/status-badge.component";
 import { InvoiceStatus } from "../../../../shared/enums/invoice-status.enum";
 import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
@@ -18,6 +20,7 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
   imports: [
     CommonModule,
     CurrencyPipe,
+    DatePipe,
     RouterLink,
     MatButtonModule,
     MatIconModule,
@@ -160,31 +163,140 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
             </div>
           }
         </div>
+
+        <!-- Payment History -->
+        <div class="card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-900">
+              Payment History
+            </h3>
+            <a
+              mat-stroked-button
+              [routerLink]="['/payments/new']"
+              [queryParams]="{ invoiceId: invoice.id }"
+            >
+              <mat-icon>add</mat-icon> Record Payment
+            </a>
+          </div>
+
+          @if (payments.length === 0) {
+            <p class="text-sm text-gray-400 py-2">No payments recorded yet.</p>
+          } @else {
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b text-gray-500 text-xs uppercase">
+                  <th class="py-2 text-left">Date</th>
+                  <th class="py-2 text-left">Method</th>
+                  <th class="py-2 text-left">Reference</th>
+                  <th class="py-2 text-right">Amount</th>
+                  <th class="py-2 text-right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (payment of payments; track payment.id) {
+                  <tr class="border-b border-gray-50">
+                    <td class="py-2">
+                      {{ payment.paidOn | date: "mediumDate" }}
+                    </td>
+                    <td class="py-2 text-gray-600">
+                      {{ payment.method || "—" }}
+                    </td>
+                    <td class="py-2 text-gray-600">
+                      {{ payment.reference || "—" }}
+                    </td>
+                    <td class="py-2 text-right font-medium text-[#0052cb]">
+                      {{ payment.amount | currency: "ZAR" : "R" }}
+                    </td>
+                    <td class="py-2 text-right">
+                      <button
+                        mat-icon-button
+                        class="text-red-400"
+                        aria-label="Delete payment"
+                        (click)="deletePayment(payment)"
+                      >
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td
+                    colspan="3"
+                    class="pt-3 text-right text-xs text-gray-500 uppercase"
+                  >
+                    Total Paid
+                  </td>
+                  <td class="pt-3 text-right font-semibold text-green-600">
+                    {{ totalPaid | currency: "ZAR" : "R" }}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          }
+        </div>
       </div>
     }
   `,
 })
 export class InvoiceDetailComponent implements OnInit {
   private readonly svc = inject(InvoiceService);
+  private readonly paymentSvc = inject(PaymentService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
   readonly InvoiceStatus = InvoiceStatus;
   invoice: Invoice | null = null;
+  payments: Payment[] = [];
+
+  get totalPaid(): number {
+    return this.payments.reduce((sum, p) => sum + p.amount, 0);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get("id")!;
       this.invoice = null;
-      this.svc.getById(id).subscribe((inv) => (this.invoice = inv));
+      this.payments = [];
+      this.svc.getById(id).subscribe((inv) => {
+        this.invoice = inv;
+        this.loadPayments(id);
+      });
     });
+  }
+
+  private loadPayments(invoiceId: string): void {
+    this.paymentSvc
+      .getByInvoice(invoiceId)
+      .subscribe((result) => (this.payments = result.items as Payment[]));
   }
 
   updateStatus(status: InvoiceStatus): void {
     this.svc.updateStatus(this.invoice!.id, status).subscribe(() => {
       this.invoice = { ...this.invoice!, status };
     });
+  }
+
+  deletePayment(payment: Payment): void {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: "Delete Payment",
+          message: `Remove this payment of R${payment.amount.toFixed(2)}? This cannot be undone.`,
+        },
+        width: "400px",
+      })
+      .afterClosed()
+      .pipe(
+        filter((confirmed) => !!confirmed),
+        switchMap(() => this.paymentSvc.delete(payment.id)),
+      )
+      .subscribe(() => {
+        this.payments = this.payments.filter((p) => p.id !== payment.id);
+      });
   }
 
   deleteInvoice(): void {

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -118,9 +118,11 @@ export class PaymentFormComponent implements OnInit {
   private readonly svc = inject(PaymentService);
   private readonly invoiceSvc = inject(InvoiceService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   invoices: Invoice[] = [];
   saving = false;
+  private invoiceIdFromRoute: string | null = null;
 
   form = this.fb.group({
     invoiceId: ["", Validators.required],
@@ -133,9 +135,16 @@ export class PaymentFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.invoiceIdFromRoute =
+      this.route.snapshot.queryParamMap.get("invoiceId");
     this.invoiceSvc
       .getInvoices({ page: 1, pageSize: 100, status: InvoiceStatus.Pending })
-      .subscribe((r) => (this.invoices = r.items));
+      .subscribe((r) => {
+        this.invoices = r.items;
+        if (this.invoiceIdFromRoute) {
+          this.form.patchValue({ invoiceId: this.invoiceIdFromRoute });
+        }
+      });
   }
 
   submit(): void {
@@ -150,7 +159,12 @@ export class PaymentFormComponent implements OnInit {
         v.reference || undefined,
       )
       .subscribe({
-        next: () => this.router.navigate(["/payments"]),
+        next: () => {
+          const dest = this.invoiceIdFromRoute
+            ? ["/invoices", this.invoiceIdFromRoute]
+            : ["/payments"];
+          this.router.navigate(dest);
+        },
         error: () => (this.saving = false),
       });
   }

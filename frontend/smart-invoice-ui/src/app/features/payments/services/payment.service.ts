@@ -15,6 +15,18 @@ export class PaymentService {
     return this.http.get<PagedResult<Payment>>(this.base, { params });
   }
 
+  getByInvoice(
+    invoiceId: string,
+    page = 1,
+    pageSize = 50,
+  ): Observable<PagedResult<Payment>> {
+    const params = new HttpParams()
+      .set("page", page)
+      .set("pageSize", pageSize)
+      .set("invoiceId", invoiceId);
+    return this.http.get<PagedResult<Payment>>(this.base, { params });
+  }
+
   record(
     invoiceId: string,
     amount: number,

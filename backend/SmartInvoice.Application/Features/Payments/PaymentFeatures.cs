@@ -68,7 +68,7 @@ public class RecordPaymentHandler : IRequestHandler<RecordPaymentCommand, Paymen
 }
 
 // ─── Get Payments ─────────────────────────────────────────────────────────────
-public record GetPaymentsQuery(Guid UserId, int PageNumber = 1, int PageSize = 10)
+public record GetPaymentsQuery(Guid UserId, int PageNumber = 1, int PageSize = 10, Guid? InvoiceId = null)
     : IRequest<PagedResult<PaymentDto>>;
 
 public class GetPaymentsHandler : IRequestHandler<GetPaymentsQuery, PagedResult<PaymentDto>>
@@ -81,7 +81,8 @@ public class GetPaymentsHandler : IRequestHandler<GetPaymentsQuery, PagedResult<
     {
         var (items, total) = await _repository.GetPagedAsync(
             request.PageNumber, request.PageSize,
-            p => p.Invoice.UserId == request.UserId && !p.IsDeleted,
+            p => p.Invoice.UserId == request.UserId && !p.IsDeleted
+                 && (request.InvoiceId == null || p.InvoiceId == request.InvoiceId),
             cancellationToken);
 
         var dtos = items.Select(p => new PaymentDto
