@@ -66,6 +66,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                   <button
                     mat-icon-button
                     (click)="delete(p.id)"
+                    aria-label="Delete payment"
                   >
                     <mat-icon class="text-red-400">delete</mat-icon>
                   </button>

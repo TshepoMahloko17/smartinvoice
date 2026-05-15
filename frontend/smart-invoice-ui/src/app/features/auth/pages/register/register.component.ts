@@ -134,6 +134,7 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
                 mat-icon-button
                 matSuffix
                 (click)="showPwd = !showPwd"
+                [attr.aria-label]="showPwd ? 'Hide password' : 'Show password'"
               >
                 <mat-icon>{{
                   showPwd ? "visibility_off" : "visibility"
@@ -163,6 +164,11 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
                 mat-icon-button
                 matSuffix
                 (click)="showConfirm = !showConfirm"
+                [attr.aria-label]="
+                  showConfirm
+                    ? 'Hide confirm password'
+                    : 'Show confirm password'
+                "
               >
                 <mat-icon>{{
                   showConfirm ? "visibility_off" : "visibility"

@@ -52,6 +52,7 @@ import { InvoiceStatus } from "../../../../shared/enums/invoice-status.enum";
             <button
               mat-icon-button
               [matMenuTriggerFor]="menu"
+              aria-label="Invoice actions"
             >
               <mat-icon>more_vert</mat-icon>
             </button>

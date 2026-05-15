@@ -62,6 +62,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
               <a
                 mat-icon-button
                 [routerLink]="['/clients', client.id]"
+                aria-label="View client details"
               >
                 <mat-icon class="text-gray-400">chevron_right</mat-icon>
               </a>

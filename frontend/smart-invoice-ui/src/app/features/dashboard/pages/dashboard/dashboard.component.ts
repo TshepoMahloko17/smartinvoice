@@ -237,6 +237,7 @@ import {
                     class="text-gray-400"
                     [matMenuTriggerFor]="rowMenu"
                     [matMenuTriggerData]="{ inv: inv }"
+                    aria-label="Invoice actions"
                   >
                     <mat-icon style="font-size:18px;">more_vert</mat-icon>
                   </button>

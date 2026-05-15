@@ -60,6 +60,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                   <button
                     mat-icon-button
                     (click)="delete(c.id)"
+                    aria-label="Delete contract"
                   >
                     <mat-icon class="text-red-400">delete</mat-icon>
                   </button>

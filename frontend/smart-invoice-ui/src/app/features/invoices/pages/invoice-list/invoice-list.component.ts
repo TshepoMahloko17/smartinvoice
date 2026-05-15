@@ -120,6 +120,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                     [disabled]="downloadingId === inv.id"
                     (click)="downloadPdf(inv.id, inv.invoiceNumber)"
                     title="Download PDF"
+                    aria-label="Download invoice PDF"
                   >
                     <mat-icon
                       class="text-gray-400"
@@ -137,6 +138,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                   <a
                     mat-icon-button
                     [routerLink]="['/invoices', inv.id]"
+                    aria-label="View invoice details"
                   >
                     <mat-icon class="text-gray-400">chevron_right</mat-icon>
                   </a>

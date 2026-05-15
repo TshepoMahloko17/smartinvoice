@@ -160,6 +160,7 @@ import { Currency } from "../../../../shared/enums/currency.enum";
                   mat-icon-button
                   (click)="removeItem($index)"
                   class="mt-1"
+                  aria-label="Remove item"
                 >
                   <mat-icon class="text-red-400">delete</mat-icon>
                 </button>

@@ -74,6 +74,7 @@ import { AuthService } from "../../../../core/services/auth.service";
                 mat-icon-button
                 matSuffix
                 (click)="showPwd = !showPwd"
+                [attr.aria-label]="showPwd ? 'Hide password' : 'Show password'"
               >
                 <mat-icon>{{
                   showPwd ? "visibility_off" : "visibility"
