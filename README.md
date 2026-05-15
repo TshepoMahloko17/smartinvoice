@@ -136,6 +136,7 @@ handle contracts, and visualize financial performance — all in one place.
 | **HTTPS Enforcement**        | Railway terminates TLS; HTTPS redirect in production                                                     |
 | **Structured Audit Logging** | Serilog logs request pipeline; logging behaviour never serialises request bodies                         |
 | **Error Snackbar**           | Global HTTP error interceptor shows user-friendly messages for all 4xx/5xx responses                     |
+| **Token Storage**            | JWT tokens stored in `sessionStorage` — cleared automatically on tab/window close                        |
 
 ---
 
