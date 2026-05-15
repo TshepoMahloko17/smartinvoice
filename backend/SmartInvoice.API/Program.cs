@@ -24,8 +24,18 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddPersistence(builder.Configuration);
 
-// JWT Authentication
+// JWT key strength check — fail fast in production if key is weak or default
 var jwtKey = builder.Configuration["Jwt:SecretKey"]!;
+
+if (builder.Environment.IsProduction())
+{
+    const string devDefault = "SmartInvoice_Local_Dev_Secret_Key_Change_In_Prod!!";
+    if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32 || jwtKey == devDefault)
+        throw new InvalidOperationException(
+            "Jwt:SecretKey is missing, too short (< 32 chars), or still set to the default dev value. " +
+            "Set a strong secret in production environment variables.");
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
