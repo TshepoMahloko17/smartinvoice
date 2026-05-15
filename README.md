@@ -72,10 +72,12 @@ handle contracts, and visualize financial performance — all in one place.
 - 👥 **Client Management** — Full client profiles with invoice history
 - 📋 **Contract Management** — Link contracts to clients and invoices
 - 💳 **Payment Tracking** — Record and manage payments per invoice
-- 🔐 **Authentication** — JWT-based login with refresh token support
-- 📧 **Email Notifications** — SendGrid integration for invoice delivery
+- 🔐 **Authentication** — JWT-based login with refresh token support and
+  silent token renewal
 - 🖨️ **PDF Generation** — iTextSharp-powered invoice PDF export
 - 🌗 **Theme Toggle** — Light / Dark mode support
+- ⚠️ **Error Feedback** — Global HTTP error interceptor displays contextual
+  snackbar messages for all API failures (400, 403, 404, 429, 5xx)
 
 ---
 
@@ -106,6 +108,32 @@ handle contracts, and visualize financial performance — all in one place.
 | SendGrid              | Email service            |
 | iTextSharp            | PDF generation           |
 | Swagger / OpenAPI     | API documentation        |
+| Serilog               | Structured logging       |
+
+### DevOps & CI/CD
+
+| Technology     | Purpose                         |
+| -------------- | ------------------------------- |
+| Docker Compose | Local full-stack environment    |
+| GitHub Actions | CI — build + test on every push |
+| Railway        | Backend hosting (PostgreSQL)    |
+| Vercel         | Frontend hosting                |
+| Nginx          | Serve Angular + proxy `/api`    |
+
+---
+
+## 🔒 Security
+
+| Feature                      | Implementation                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Rate Limiting**            | 10 req/min on `/api/auth/*` — returns 429 on breach (.NET 9 built-in)                                    |
+| **Password Strength**        | FluentValidation: min 8 chars, uppercase, digit, special character                                       |
+| **Security Headers**         | `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy` |
+| **Content Security Policy**  | `frame-ancestors 'none'` via Nginx (production)                                                          |
+| **JWT Key Strength Check**   | Startup throws if key is < 32 chars or default dev value (production only)                               |
+| **HTTPS Enforcement**        | Railway terminates TLS; HTTPS redirect in production                                                     |
+| **Structured Audit Logging** | Serilog logs request pipeline; logging behaviour never serialises request bodies                         |
+| **Error Snackbar**           | Global HTTP error interceptor shows user-friendly messages for all 4xx/5xx responses                     |
 
 ---
 
@@ -256,7 +284,8 @@ SmartInvoice.API/
 │   └── PaymentsController.cs
 ├── Middleware/
 │   ├── ExceptionMiddleware.cs
-│   └── RequestLoggingMiddleware.cs
+│   ├── RequestLoggingMiddleware.cs
+│   └── SecurityHeadersMiddleware.cs
 ├── Extensions/ServiceExtensions.cs
 └── Program.cs
 ```
@@ -271,6 +300,7 @@ SmartInvoice.API/
 
 | Method | Endpoint                    | Description       |
 | ------ | --------------------------- | ----------------- |
+| `POST` | `/api/auth/register`        | Register          |
 | `POST` | `/api/auth/login`           | Login             |
 | `POST` | `/api/auth/logout`          | Logout            |
 | `POST` | `/api/auth/refresh-token`   | Refresh JWT token |
@@ -437,7 +467,7 @@ Angular → HTTP Request
     → MediatR.Send(Command/Query)
       → Handler (Application layer)
         → Repository (Persistence layer)
-          → Database (MSSQL)
+          → Database (PostgreSQL)
 ```
 
 ---
@@ -446,9 +476,9 @@ Angular → HTTP Request
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - .NET 9 SDK
-- MSSQL Server
+- PostgreSQL 16 (or use Docker — see above)
 - Angular CLI (`npm install -g @angular/cli`)
 
 ### Backend Setup
@@ -456,7 +486,7 @@ Angular → HTTP Request
 ```bash
 cd backend/SmartInvoice.API
 dotnet restore
-# Update connection string in appsettings.Development.json
+# Set connection string in appsettings.Development.json (or use DATABASE_URL env var)
 dotnet ef database update
 dotnet run
 ```
@@ -469,7 +499,7 @@ npm install
 ng serve
 ```
 
-> API runs on: `https://localhost:5001`
+> API runs on: `http://localhost:8080`
 > Angular runs on: `http://localhost:4200`
 
 ---
@@ -477,13 +507,12 @@ ng serve
 ## 🧪 Testing
 
 ```bash
-# Unit Tests
-dotnet test SmartInvoice.Unit.Tests
-
-# Integration Tests
-dotnet test SmartInvoice.Integration.Tests
+# Backend Tests
+cd backend
+dotnet test SmartInvoice.Tests
 
 # Angular Tests
+cd frontend/smart-invoice-ui
 ng test
 ```
 
