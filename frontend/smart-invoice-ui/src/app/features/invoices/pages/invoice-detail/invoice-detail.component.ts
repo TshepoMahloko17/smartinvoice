@@ -4,10 +4,13 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
+import { MatDialog } from "@angular/material/dialog";
+import { filter, switchMap } from "rxjs";
 import { InvoiceService } from "../../services/invoice.service";
 import { Invoice } from "../../../../shared/models/invoice.model";
 import { StatusBadgeComponent } from "../../../../shared/components/status-badge/status-badge.component";
 import { InvoiceStatus } from "../../../../shared/enums/invoice-status.enum";
+import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "app-invoice-detail",
@@ -165,6 +168,7 @@ export class InvoiceDetailComponent implements OnInit {
   private readonly svc = inject(InvoiceService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   readonly InvoiceStatus = InvoiceStatus;
   invoice: Invoice | null = null;
@@ -184,8 +188,16 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   deleteInvoice(): void {
-    this.svc
-      .delete(this.invoice!.id)
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: { title: "Delete Invoice", message: `Are you sure you want to delete invoice ${this.invoice!.invoiceNumber}? This action cannot be undone.` },
+        width: "400px",
+      })
+      .afterClosed()
+      .pipe(
+        filter((confirmed) => !!confirmed),
+        switchMap(() => this.svc.delete(this.invoice!.id)),
+      )
       .subscribe(() => this.router.navigate(["/invoices"]));
   }
 

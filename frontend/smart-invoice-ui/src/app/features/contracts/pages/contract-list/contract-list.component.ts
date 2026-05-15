@@ -3,9 +3,12 @@ import { CommonModule } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatDialog } from "@angular/material/dialog";
+import { switchMap, filter } from "rxjs";
 import { ContractService } from "../../services/contract.service";
 import { Contract } from "../../../../shared/models/contract.model";
 import { PagedResult } from "../../../../shared/models/api-response.model";
+import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "app-contract-list",
@@ -84,6 +87,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
 })
 export class ContractListComponent implements OnInit {
   private readonly svc = inject(ContractService);
+  private readonly dialog = inject(MatDialog);
   result: PagedResult<Contract> | null = null;
 
   ngOnInit(): void {
@@ -91,12 +95,22 @@ export class ContractListComponent implements OnInit {
   }
 
   delete(id: string): void {
-    this.svc.delete(id).subscribe(() => {
-      if (this.result)
-        this.result = {
-          ...this.result,
-          items: this.result.items.filter((c) => c.id !== id),
-        };
-    });
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: { title: "Delete Contract", message: "Are you sure you want to delete this contract? This action cannot be undone." },
+        width: "400px",
+      })
+      .afterClosed()
+      .pipe(
+        filter((confirmed) => !!confirmed),
+        switchMap(() => this.svc.delete(id)),
+      )
+      .subscribe(() => {
+        if (this.result)
+          this.result = {
+            ...this.result,
+            items: this.result.items.filter((c) => c.id !== id),
+          };
+      });
   }
 }
