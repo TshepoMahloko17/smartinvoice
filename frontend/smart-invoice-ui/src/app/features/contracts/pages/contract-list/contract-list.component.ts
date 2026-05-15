@@ -97,7 +97,11 @@ export class ContractListComponent implements OnInit {
   delete(id: string): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: "Delete Contract", message: "Are you sure you want to delete this contract? This action cannot be undone." },
+        data: {
+          title: "Delete Contract",
+          message:
+            "Are you sure you want to delete this contract? This action cannot be undone.",
+        },
         width: "400px",
       })
       .afterClosed()

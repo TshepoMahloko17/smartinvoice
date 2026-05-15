@@ -99,7 +99,10 @@ export class ClientDetailComponent implements OnInit {
   deleteClient(): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: "Delete Client", message: `Are you sure you want to delete ${this.client!.name}? This action cannot be undone.` },
+        data: {
+          title: "Delete Client",
+          message: `Are you sure you want to delete ${this.client!.name}? This action cannot be undone.`,
+        },
         width: "400px",
       })
       .afterClosed()

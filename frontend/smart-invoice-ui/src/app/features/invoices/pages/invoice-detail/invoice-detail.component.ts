@@ -190,7 +190,10 @@ export class InvoiceDetailComponent implements OnInit {
   deleteInvoice(): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: "Delete Invoice", message: `Are you sure you want to delete invoice ${this.invoice!.invoiceNumber}? This action cannot be undone.` },
+        data: {
+          title: "Delete Invoice",
+          message: `Are you sure you want to delete invoice ${this.invoice!.invoiceNumber}? This action cannot be undone.`,
+        },
         width: "400px",
       })
       .afterClosed()

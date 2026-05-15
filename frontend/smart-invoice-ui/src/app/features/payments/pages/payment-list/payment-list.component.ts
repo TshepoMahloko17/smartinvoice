@@ -103,7 +103,11 @@ export class PaymentListComponent implements OnInit {
   delete(id: string): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: "Delete Payment", message: "Are you sure you want to delete this payment? This action cannot be undone." },
+        data: {
+          title: "Delete Payment",
+          message:
+            "Are you sure you want to delete this payment? This action cannot be undone.",
+        },
         width: "400px",
       })
       .afterClosed()
