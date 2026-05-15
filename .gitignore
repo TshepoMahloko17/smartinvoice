@@ -14,6 +14,7 @@ appsettings.Development.json
 
 # Internal design reference
 code.html
+TODO.html
 *.pfx
 *.p12
 
