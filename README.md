@@ -7,6 +7,7 @@
     <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
     <img src="https://img.shields.io/badge/Clean_Architecture-6DB33F?style=for-the-badge" />
     <img src="https://img.shields.io/badge/CQRS-MediatR-blue?style=for-the-badge" />
+    <img src="https://github.com/TshepoMahloko17/smartinvoice/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </p>
 </div>
 
