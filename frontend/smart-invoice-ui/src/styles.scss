@@ -1,8 +1,24 @@
 @use '@angular/material' as mat;
 @use '@angular/cdk' as cdk;
-@include cdk.a11y();
 @include cdk.overlay();
 @include cdk.text-field();
+
+// Fix Angular Material datepicker — hidden a11y text was visible without this
+.cdk-visually-hidden {
+  border: 0 !important;
+  clip: rect(0 0 0 0) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  white-space: nowrap !important;
+  outline: 0 !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  left: -9999px !important;
+}
 
 // Custom theme palette
 $primary: mat.define-palette(mat.$blue-palette, 700);
