@@ -457,27 +457,12 @@ ng test
 
 ---
 
-## 📁 Project Status
-
-| Module     | Backend        | Frontend       |
-| ---------- | -------------- | -------------- |
-| Auth       | 🔲 In Progress | 🔲 In Progress |
-| Dashboard  | 🔲 In Progress | 🔲 In Progress |
-| Invoices   | 🔲 In Progress | 🔲 In Progress |
-| Clients    | 🔲 In Progress | 🔲 In Progress |
-| Contracts  | 🔲 In Progress | 🔲 In Progress |
-| Payments   | 🔲 In Progress | 🔲 In Progress |
-| PDF Export | 🔲 In Progress | 🔲 In Progress |
-| Email      | 🔲 In Progress | N/A            |
-
----
-
-## 👨‍💻 Author
+## �‍💻 Author
 
 **Tshepo Mahloko**
 
-- Angular Developer | Full Stack Developer
-- 6+ years experience in web, mobile & AR development
+- Full Stack Developer with 7+ years of experience
+- ASP.NET Core | Angular | React | PHP
 - Currently: Angular Developer @ Standard Bank
 
 ---
