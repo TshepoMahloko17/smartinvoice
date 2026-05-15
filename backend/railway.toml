@@ -1,12 +1,9 @@
 [build]
-builder = "nixpacks"
-buildCommand = "dotnet publish SmartInvoice.API/SmartInvoice.API.csproj -c Release -o out"
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["dotnet-sdk_9"]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "dotnet out/SmartInvoice.API.dll"
+startCommand = "dotnet SmartInvoice.API.dll"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
