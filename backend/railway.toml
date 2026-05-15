@@ -2,6 +2,9 @@
 builder = "nixpacks"
 buildCommand = "dotnet publish SmartInvoice.API/SmartInvoice.API.csproj -c Release -o out"
 
+[build.nixpacksPlan.phases.setup]
+nixPkgs = ["dotnet-sdk_9"]
+
 [deploy]
 startCommand = "dotnet out/SmartInvoice.API.dll"
 healthcheckPath = "/health"
