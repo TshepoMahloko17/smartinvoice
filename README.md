@@ -4,7 +4,7 @@
   <p>
     <img src="https://img.shields.io/badge/Angular-17+-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
     <img src="https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
-    <img src="https://img.shields.io/badge/MSSQL-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" />
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
     <img src="https://img.shields.io/badge/Clean_Architecture-6DB33F?style=for-the-badge" />
     <img src="https://img.shields.io/badge/CQRS-MediatR-blue?style=for-the-badge" />
   </p>
@@ -12,7 +12,18 @@
 
 ---
 
-## 📸 Dashboard Preview
+## � Live Demo
+
+| | Link |
+|---|---|
+| **Frontend** | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app) |
+| **Backend API** | [smartinvoice-production.up.railway.app](https://smartinvoice-production.up.railway.app/health) |
+
+> Demo credentials: `admin@smartinvoice.com` / `Admin@123`
+
+---
+
+## �📸 Dashboard Preview
 
 ![SmartInvoice Dashboard](screenshot-dashboard.png)
 
@@ -69,7 +80,7 @@ handle contracts, and visualize financial performance — all in one place.
 | CQRS + MediatR        | Command/Query separation |
 | FluentValidation      | Input validation         |
 | Entity Framework Core | ORM                      |
-| MSSQL                 | Database                 |
+| PostgreSQL            | Database                 |
 | JWT                   | Authentication           |
 | SendGrid              | Email service            |
 | iTextSharp            | PDF generation           |
