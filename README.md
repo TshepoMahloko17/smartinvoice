@@ -14,16 +14,30 @@
 
 ## � Live Demo
 
-| | Link |
-|---|---|
-| **Frontend** | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app) |
+|                 | Link                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)                          |
 | **Backend API** | [smartinvoice-production.up.railway.app](https://smartinvoice-production.up.railway.app/health) |
 
 > Demo credentials: `admin@smartinvoice.com` / `Admin@123`
 
 ---
 
-## �📸 Dashboard Preview
+## 🐳 Run Locally with Docker
+
+```bash
+git clone https://github.com/TshepoMahloko17/smartinvoice.git
+cd smartinvoice
+docker compose up
+```
+
+- API: `http://localhost:8080`
+- Swagger: `http://localhost:8080/swagger`
+- Database is auto-created and seeded on first run
+
+---
+
+## 📸 Dashboard Preview
 
 ![SmartInvoice Dashboard](screenshot-dashboard.png)
 
