@@ -87,14 +87,15 @@ handle contracts, and visualize financial performance — all in one place.
 
 ### Frontend
 
-| Technology            | Purpose              |
-| --------------------- | -------------------- |
-| Angular 17+           | SPA Framework        |
-| TypeScript            | Language             |
-| RxJS                  | Reactive programming |
-| Angular Material      | UI Component library |
-| Chart.js / ApexCharts | Revenue charts       |
-| SCSS                  | Styling              |
+| Technology            | Purpose                                          |
+| --------------------- | ------------------------------------------------ |
+| Angular 17+           | SPA Framework                                    |
+| TypeScript            | Language                                         |
+| Angular Signals       | Reactive state management (`signal`, `computed`) |
+| RxJS                  | HTTP streams                                     |
+| Angular Material      | UI Component library                             |
+| Chart.js / ApexCharts | Revenue charts                                   |
+| SCSS                  | Styling                                          |
 
 ### Backend
 
@@ -510,13 +511,13 @@ ng serve
 ## 🧪 Testing
 
 ```bash
-# Backend Tests
+# Backend Tests (xUnit + Moq — 50 tests)
 cd backend
 dotnet test SmartInvoice.Tests
 
-# Angular Tests
+# Angular Tests (Jest — 8 suites)
 cd frontend/smart-invoice-ui
-ng test
+npm test
 ```
 
 ---
