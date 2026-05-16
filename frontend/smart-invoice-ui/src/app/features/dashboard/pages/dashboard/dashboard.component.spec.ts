@@ -99,13 +99,13 @@ describe("DashboardComponent", () => {
 
   it("should load stats on init", () => {
     expect(dashboardSvc.getStats).toHaveBeenCalledTimes(1);
-    expect(component.stats).toEqual(mockStats);
+    expect(component.stats()).toEqual(mockStats);
   });
 
   it("should load recent invoices on init", () => {
     expect(invoiceSvc.getInvoices).toHaveBeenCalled();
-    expect(component.recentInvoices.length).toBe(1);
-    expect(component.totalInvoices).toBe(1);
+    expect(component.recentInvoices().length).toBe(1);
+    expect(component.totalInvoices()).toBe(1);
   });
 
   it("should load revenue chart on init", () => {
@@ -114,23 +114,23 @@ describe("DashboardComponent", () => {
   });
 
   it("pendingAmount returns formatted ZAR string", () => {
-    expect(component.pendingAmount).toContain("R");
-    expect(component.pendingAmount).toContain("8");
+    expect(component.pendingAmount()).toContain("R");
+    expect(component.pendingAmount()).toContain("8");
   });
 
   it("applyFilter resets page and reloads invoices", () => {
-    component.currentPage = 3;
+    component.currentPage.set(3);
     component.applyFilter(InvoiceStatus.Paid);
 
-    expect(component.filterStatus).toBe(InvoiceStatus.Paid);
-    expect(component.currentPage).toBe(1);
+    expect(component.filterStatus()).toBe(InvoiceStatus.Paid);
+    expect(component.currentPage()).toBe(1);
     expect(invoiceSvc.getInvoices).toHaveBeenCalledTimes(2); // init + filter
   });
 
   it("changePage does not go below page 1", () => {
-    component.currentPage = 1;
+    component.currentPage.set(1);
     component.changePage(0);
-    expect(component.currentPage).toBe(1);
+    expect(component.currentPage()).toBe(1);
     expect(invoiceSvc.getInvoices).toHaveBeenCalledTimes(1);
   });
 

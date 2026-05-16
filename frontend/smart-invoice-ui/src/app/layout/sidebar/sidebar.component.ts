@@ -1,8 +1,7 @@
-import { Component, inject } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
 import { AuthService } from "../../core/services/auth.service";
-import { AsyncPipe } from "@angular/common";
 
 interface NavItem {
   label: string;
@@ -13,7 +12,7 @@ interface NavItem {
 @Component({
   selector: "app-sidebar",
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, MatIconModule],
   template: `
     <aside
       class="fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 shadow-lg flex flex-col overflow-y-auto z-50"
@@ -64,15 +63,15 @@ interface NavItem {
           <div
             class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
           >
-            {{ initials }}
+            {{ initials() }}
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-slate-900 truncate">
-              {{ (auth.currentUser$ | async)?.firstName }}
-              {{ (auth.currentUser$ | async)?.lastName }}
+              {{ auth.currentUser()?.firstName }}
+              {{ auth.currentUser()?.lastName }}
             </p>
             <p class="text-[11px] text-slate-500 truncate">
-              {{ (auth.currentUser$ | async)?.email }}
+              {{ auth.currentUser()?.email }}
             </p>
           </div>
           <button
@@ -131,9 +130,9 @@ export class SidebarComponent {
     { label: "Payments", icon: "payments", route: "/payments" },
   ];
 
-  get initials(): string {
-    const u = this.auth.currentUser;
+  readonly initials = computed(() => {
+    const u = this.auth.currentUser();
     if (!u) return "U";
     return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
-  }
+  });
 }

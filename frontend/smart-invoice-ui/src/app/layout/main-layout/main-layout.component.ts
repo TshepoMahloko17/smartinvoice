@@ -1,6 +1,5 @@
 import { Component, inject } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
-import { AsyncPipe } from "@angular/common";
 import { SidebarComponent } from "../sidebar/sidebar.component";
 import { NavbarComponent } from "../navbar/navbar.component";
 import { LoadingSpinnerComponent } from "../../shared/components/loading-spinner/loading-spinner.component";
@@ -11,7 +10,6 @@ import { LoadingService } from "../../core/services/loading.service";
   standalone: true,
   imports: [
     RouterOutlet,
-    AsyncPipe,
     SidebarComponent,
     NavbarComponent,
     LoadingSpinnerComponent,
@@ -26,7 +24,7 @@ import { LoadingService } from "../../core/services/loading.service";
         </main>
       </div>
     </div>
-    <app-loading-spinner [visible]="(loading.loading$ | async) ?? false" />
+    <app-loading-spinner [visible]="loading.loading()" />
   `,
 })
 export class MainLayoutComponent {

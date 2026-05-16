@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -42,8 +42,8 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
           <mat-label>Search</mat-label>
           <input
             matInput
-            [(ngModel)]="search"
-            (ngModelChange)="load()"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event); load()"
             placeholder="Name, email…"
           />
           <mat-icon matSuffix>search</mat-icon>
@@ -51,7 +51,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        @for (client of result?.items; track client.id) {
+        @for (client of result()?.items; track client.id) {
           <div class="card p-5 space-y-2">
             <div class="flex items-center justify-between">
               <div
@@ -90,14 +90,16 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
 })
 export class ClientListComponent implements OnInit {
   private readonly svc = inject(ClientService);
-  result: PagedResult<Client> | null = null;
-  search = "";
+  readonly result = signal<PagedResult<Client> | null>(null);
+  readonly search = signal("");
 
   ngOnInit(): void {
     this.load();
   }
 
   load(): void {
-    this.svc.getClients(1, 20, this.search).subscribe((r) => (this.result = r));
+    this.svc
+      .getClients(1, 20, this.search())
+      .subscribe((r) => this.result.set(r));
   }
 }

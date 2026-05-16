@@ -82,32 +82,32 @@ describe("InvoiceListComponent", () => {
 
   it("should load invoices on init", () => {
     expect(svc.getInvoices).toHaveBeenCalledTimes(1);
-    expect(component.result?.items.length).toBe(2);
+    expect(component.result()?.items.length).toBe(2);
   });
 
   it("onFilter resets page to 1 and reloads", () => {
-    component.page = 3;
+    component.page.set(3);
     component.onFilter();
-    expect(component.page).toBe(1);
+    expect(component.page()).toBe(1);
     expect(svc.getInvoices).toHaveBeenCalledTimes(2);
   });
 
   it("goToPage loads the requested page", () => {
     svc.getInvoices.mockReturnValue(of(makePagedResult([makeInvoice()])));
     component.goToPage(2);
-    expect(component.page).toBe(2);
+    expect(component.page()).toBe(2);
     expect(svc.getInvoices).toHaveBeenCalledTimes(2);
   });
 
   it("getInvoices is called with status filter when set", () => {
-    component.statusFilter = InvoiceStatus.Paid;
+    component.statusFilter.set(InvoiceStatus.Paid);
     component.onFilter();
     const lastArgs = svc.getInvoices.mock.calls.at(-1)![0];
     expect(lastArgs.status).toBe(InvoiceStatus.Paid);
   });
 
   it("getInvoices is called with search term when set", () => {
-    component.search = "INV-0001";
+    component.search.set("INV-0001");
     component.onFilter();
     const lastArgs = svc.getInvoices.mock.calls.at(-1)![0];
     expect(lastArgs.search).toBe("INV-0001");
@@ -128,12 +128,12 @@ describe("InvoiceListComponent", () => {
     jest.spyOn(document, "createElement").mockReturnValue(anchor);
 
     component.downloadPdf("inv-1", "INV-0001");
-    expect(component.downloadingId).toBe("inv-1");
+    expect(component.downloadingId()).toBe("inv-1");
 
     blobSubject.next(new Blob(["pdf"], { type: "application/pdf" }));
     blobSubject.complete();
 
-    expect(component.downloadingId).toBeNull();
+    expect(component.downloadingId()).toBeNull();
   });
 
   it("downloadPdf clears downloadingId on error", () => {
@@ -141,9 +141,9 @@ describe("InvoiceListComponent", () => {
     svc.downloadPdf.mockReturnValue(blobSubject.asObservable());
 
     component.downloadPdf("inv-1", "INV-0001");
-    expect(component.downloadingId).toBe("inv-1");
+    expect(component.downloadingId()).toBe("inv-1");
 
     blobSubject.error(new Error("network error"));
-    expect(component.downloadingId).toBeNull();
+    expect(component.downloadingId()).toBeNull();
   });
 });

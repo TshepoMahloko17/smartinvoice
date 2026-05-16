@@ -79,12 +79,10 @@ describe("AuthService", () => {
       expect(setUserSpy).toHaveBeenCalledWith(mockResponse.user);
     });
 
-    it("emits the user through currentUser$", () => {
-      let emittedUser = null;
-      svc.currentUser$.subscribe((u) => (emittedUser = u));
+    it("emits the user through currentUser signal", () => {
       svc.login("jane@example.com", "secret").subscribe();
       http.expectOne(`${environment.apiUrl}/auth/login`).flush(mockResponse);
-      expect(emittedUser).toEqual(mockResponse.user);
+      expect(svc.currentUser()).toEqual(mockResponse.user);
     });
   });
 
@@ -154,10 +152,8 @@ describe("AuthService", () => {
 
     it("sets currentUser to null", () => {
       jest.spyOn(router, "navigate").mockResolvedValue(true);
-      let emittedUser: unknown = "initial";
-      svc.currentUser$.subscribe((u) => (emittedUser = u));
       svc.logout();
-      expect(emittedUser).toBeNull();
+      expect(svc.currentUser()).toBeNull();
     });
   });
 

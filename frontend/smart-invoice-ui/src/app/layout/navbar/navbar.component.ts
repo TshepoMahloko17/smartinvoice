@@ -1,6 +1,12 @@
-import { Component, OnInit, HostListener, inject } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  HostListener,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
 import { Router } from "@angular/router";
-import { CommonModule } from "@angular/common";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatMenuModule } from "@angular/material/menu";
@@ -11,7 +17,7 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
 @Component({
   selector: "app-navbar",
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatMenuModule],
+  imports: [MatIconModule, MatButtonModule, MatMenuModule],
   template: `
     <header
       class="fixed top-0 left-64 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm flex justify-between items-center px-6 py-3"
@@ -46,17 +52,17 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
             <mat-icon style="font-size:24px; width:24px; height:24px;"
               >notifications</mat-icon
             >
-            @if (pendingCount > 0) {
+            @if (pendingCount() > 0) {
               <span
                 class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold leading-none"
               >
-                {{ pendingCount }}
+                {{ pendingCount() }}
               </span>
             }
           </button>
 
           <!-- Notification dropdown -->
-          @if (showNotif) {
+          @if (showNotif()) {
             <div
               class="absolute right-0 top-full mt-2 w-80 rounded-2xl overflow-hidden"
               style="z-index:1000; box-shadow: 0 20px 60px -10px rgba(0,0,0,0.18), 0 4px 20px -4px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.07);"
@@ -75,24 +81,24 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
                     >Notifications</span
                   >
                 </div>
-                @if (pendingCount > 0) {
+                @if (pendingCount() > 0) {
                   <span
                     class="text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style="background:rgba(255,255,255,0.25); color:#fff; letter-spacing:0.03em;"
-                    >{{ pendingCount }} new</span
+                    >{{ pendingCount() }} new</span
                   >
                 }
               </div>
 
               <!-- Body -->
               <div class="bg-white">
-                @if (pendingCount > 0) {
+                @if (pendingCount() > 0) {
                   <button
                     class="w-full flex items-center gap-3.5 px-5 py-4 text-left group"
                     style="border:none; background:none; cursor:pointer; transition: background 0.15s;"
-                    (mouseenter)="hovering = true"
-                    (mouseleave)="hovering = false"
-                    [style.background]="hovering ? '#f8faff' : 'white'"
+                    (mouseenter)="hovering.set(true)"
+                    (mouseleave)="hovering.set(false)"
+                    [style.background]="hovering() ? '#f8faff' : 'white'"
                     (click)="goToPending()"
                   >
                     <span
@@ -108,8 +114,8 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
                       <p
                         class="text-sm font-semibold text-gray-800 leading-tight"
                       >
-                        {{ pendingCount }} invoice{{
-                          pendingCount === 1 ? "" : "s"
+                        {{ pendingCount() }} invoice{{
+                          pendingCount() === 1 ? "" : "s"
                         }}
                         pending
                       </p>
@@ -158,10 +164,10 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
                 <button
                   class="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold transition-colors"
                   style="border:none; background:none; cursor:pointer; color:#0052cb;"
-                  (mouseenter)="hoveringFooter = true"
-                  (mouseleave)="hoveringFooter = false"
+                  (mouseenter)="hoveringFooter.set(true)"
+                  (mouseleave)="hoveringFooter.set(false)"
                   [style.background]="
-                    hoveringFooter ? '#f0f4ff' : 'transparent'
+                    hoveringFooter() ? '#f0f4ff' : 'transparent'
                   "
                   (click)="goToInvoices()"
                 >
@@ -197,7 +203,7 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
           style="background:#0052cb;"
           [matMenuTriggerFor]="userMenu"
         >
-          {{ initials }}
+          {{ initials() }}
         </button>
         <mat-menu #userMenu>
           <button
@@ -218,40 +224,40 @@ export class NavbarComponent implements OnInit {
   readonly router = inject(Router);
   private readonly dashboardSvc = inject(DashboardService);
 
-  pendingCount = 0;
-  showNotif = false;
-  hovering = false;
-  hoveringFooter = false;
+  readonly pendingCount = signal(0);
+  readonly showNotif = signal(false);
+  readonly hovering = signal(false);
+  readonly hoveringFooter = signal(false);
+
+  readonly initials = computed(() => {
+    const u = this.auth.currentUser();
+    if (!u) return "U";
+    return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
+  });
 
   ngOnInit(): void {
     this.dashboardSvc
       .getStats()
-      .subscribe((s) => (this.pendingCount = s.pendingInvoicesCount));
+      .subscribe((s) => this.pendingCount.set(s.pendingInvoicesCount));
   }
 
   toggleNotif(event: MouseEvent): void {
     event.stopPropagation();
-    this.showNotif = !this.showNotif;
+    this.showNotif.update((v) => !v);
   }
 
   @HostListener("document:click")
   onDocumentClick(): void {
-    this.showNotif = false;
+    this.showNotif.set(false);
   }
 
   goToPending(): void {
-    this.showNotif = false;
+    this.showNotif.set(false);
     this.router.navigate(["/invoices"], { queryParams: { status: 1 } });
   }
 
   goToInvoices(): void {
-    this.showNotif = false;
+    this.showNotif.set(false);
     this.router.navigate(["/invoices"]);
-  }
-
-  get initials(): string {
-    const u = this.auth.currentUser;
-    if (!u) return "U";
-    return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
   }
 }

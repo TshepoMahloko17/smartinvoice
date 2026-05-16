@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
@@ -43,7 +43,7 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
             </tr>
           </thead>
           <tbody>
-            @for (c of result?.items; track c.id) {
+            @for (c of result()?.items; track c.id) {
               <tr class="border-b border-gray-50 hover:bg-gray-50">
                 <td class="px-4 py-3 font-medium text-gray-900">
                   {{ c.title }}
@@ -88,10 +88,10 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
 export class ContractListComponent implements OnInit {
   private readonly svc = inject(ContractService);
   private readonly dialog = inject(MatDialog);
-  result: PagedResult<Contract> | null = null;
+  readonly result = signal<PagedResult<Contract> | null>(null);
 
   ngOnInit(): void {
-    this.svc.getContracts().subscribe((r) => (this.result = r));
+    this.svc.getContracts().subscribe((r) => this.result.set(r));
   }
 
   delete(id: string): void {
@@ -110,11 +110,12 @@ export class ContractListComponent implements OnInit {
         switchMap(() => this.svc.delete(id)),
       )
       .subscribe(() => {
-        if (this.result)
-          this.result = {
-            ...this.result,
-            items: this.result.items.filter((c) => c.id !== id),
-          };
+        const cur = this.result();
+        if (cur)
+          this.result.set({
+            ...cur,
+            items: cur.items.filter((c) => c.id !== id),
+          });
       });
   }
 }

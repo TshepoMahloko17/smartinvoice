@@ -1,7 +1,7 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, inject, signal } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
-import { BehaviorSubject, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { StorageService } from "./storage.service";
 import { AuthResponse, AuthUser } from "../../shared/models/user.model";
@@ -12,11 +12,9 @@ export class AuthService {
   private readonly storage = inject(StorageService);
   private readonly router = inject(Router);
 
-  private readonly _currentUser$ = new BehaviorSubject<AuthUser | null>(
+  readonly currentUser = signal<AuthUser | null>(
     this.storage.getUser<AuthUser>(),
   );
-
-  readonly currentUser$ = this._currentUser$.asObservable();
 
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -28,14 +26,14 @@ export class AuthService {
         tap((res) => {
           this.storage.setTokens(res.accessToken, res.refreshToken);
           this.storage.setUser(res.user);
-          this._currentUser$.next(res.user);
+          this.currentUser.set(res.user);
         }),
       );
   }
 
   logout(): void {
     this.storage.clearTokens();
-    this._currentUser$.next(null);
+    this.currentUser.set(null);
     this.router.navigate(["/auth/login"]);
   }
 
@@ -48,7 +46,7 @@ export class AuthService {
       .pipe(
         tap((res) => {
           this.storage.setTokens(res.accessToken, res.refreshToken);
-          this._currentUser$.next(res.user);
+          this.currentUser.set(res.user);
         }),
       );
   }
@@ -70,13 +68,9 @@ export class AuthService {
         tap((res) => {
           this.storage.setTokens(res.accessToken, res.refreshToken);
           this.storage.setUser(res.user);
-          this._currentUser$.next(res.user);
+          this.currentUser.set(res.user);
         }),
       );
-  }
-
-  get currentUser(): AuthUser | null {
-    return this._currentUser$.value;
   }
 
   get isLoggedIn(): boolean {
