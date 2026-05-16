@@ -161,7 +161,151 @@ SmartInvoiceSystem/
 
 ---
 
-## 🔷 Backend Structure (.NET Clean Architecture)
+## �️ Architecture Diagrams
+
+### Clean Architecture — Layer Overview
+
+```mermaid
+graph TD
+    API["🔴 API Layer\nControllers · Middleware · Program.cs"]
+    APP["🔵 Application Layer\nCQRS Handlers · DTOs · Validators · Behaviours"]
+    INFRA["🟢 Infrastructure Layer\nJWT · Email · PDF · DateTime"]
+    PERSIST["🟡 Persistence Layer\nEF Core · Repositories · Migrations"]
+    DOMAIN["🟣 Domain Layer\nEntities · Enums · Value Objects · Domain Events"]
+
+    API --> APP
+    APP --> DOMAIN
+    INFRA --> APP
+    PERSIST --> APP
+    PERSIST --> DOMAIN
+
+    style DOMAIN fill:#3b1d6e,color:#e9d5ff,stroke:#7c3aed
+    style APP    fill:#1e3a5f,color:#bfdbfe,stroke:#3b82f6
+    style INFRA  fill:#14532d,color:#bbf7d0,stroke:#22c55e
+    style PERSIST fill:#713f12,color:#fef3c7,stroke:#f59e0b
+    style API    fill:#7f1d1d,color:#fecaca,stroke:#ef4444
+```
+
+> **Dependency Rule**: arrows point inward only — Domain has zero dependencies on any other layer.
+
+---
+
+### CQRS Request Flow
+
+```mermaid
+sequenceDiagram
+    participant FE as Angular Frontend
+    participant CTRL as .NET Controller
+    participant MED as MediatR
+    participant VAL as ValidationBehaviour
+    participant LOG as LoggingBehaviour
+    participant AUDIT as AuditBehaviour
+    participant HAND as Command/Query Handler
+    participant REPO as Repository
+    participant DB as PostgreSQL
+
+    FE->>CTRL: HTTP Request (JWT in header)
+    CTRL->>MED: Send(Command | Query)
+    MED->>VAL: FluentValidation
+    VAL-->>CTRL: 400 Bad Request (if invalid)
+    VAL->>LOG: Log request name
+    LOG->>AUDIT: Log mutation (Create/Update/Delete)
+    AUDIT->>HAND: Execute handler
+    HAND->>REPO: Query / Persist
+    REPO->>DB: EF Core SQL
+    DB-->>REPO: Result
+    REPO-->>HAND: Domain entities
+    HAND-->>CTRL: Response DTO
+    CTRL-->>FE: HTTP Response (JSON)
+```
+
+---
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant FE as Angular (AuthService)
+    participant INT as Auth Interceptor
+    participant API as .NET Auth API
+    participant DB as PostgreSQL
+
+    User->>FE: Enter credentials
+    FE->>API: POST /api/auth/login
+    API->>DB: Validate user + password hash
+    DB-->>API: User record
+    API-->>FE: { accessToken, refreshToken, user }
+    FE->>FE: Store tokens in sessionStorage\nSet currentUser signal
+
+    Note over FE,API: Later — access token expires (401)
+
+    INT->>API: POST /api/auth/refresh-token
+    API->>DB: Validate refresh token
+    API-->>INT: New accessToken + refreshToken
+    INT->>API: Retry original request
+    API-->>FE: Original response
+
+    Note over FE,API: Refresh token also invalid
+
+    INT->>FE: clearTokens() → redirect /auth/login
+```
+
+---
+
+### Docker / Container Architecture
+
+```mermaid
+graph LR
+    subgraph Docker Compose
+        FEC["🅰️ Frontend Container\nnginx:alpine\n:4200"]
+        APIC[".NET API Container\n.NET 9 SDK\n:8080"]
+        DBC["🐘 PostgreSQL Container\npostgres:16\n:5432"]
+    end
+
+    Browser["🌐 Browser"] -->|HTTP :4200| FEC
+    FEC -->|/api/* proxy| APIC
+    APIC -->|EF Core| DBC
+
+    style FEC  fill:#1e293b,color:#7dd3fc,stroke:#3b82f6
+    style APIC fill:#1e293b,color:#c4b5fd,stroke:#7c3aed
+    style DBC  fill:#1e293b,color:#6ee7b7,stroke:#10b981
+```
+
+> Nginx inside the frontend container rewrites `/api/*` → `http://backend:8080/api/*` — no CORS headers needed in production.
+
+---
+
+### Frontend ↔ Backend Communication
+
+```mermaid
+graph TD
+    subgraph Angular Frontend
+        SIG["Signals / State\nsignal · computed"]
+        SVC["Feature Services\nInvoiceService · ClientService\nContractService · PaymentService"]
+        INT2["Interceptors\nauth · error · loading"]
+    end
+
+    subgraph .NET Backend
+        CTRL2["Controllers\nthin — MediatR.Send() only"]
+        PIPE["MediatR Pipeline\nValidation → Logging → Audit → Handler"]
+        REPO2["Repositories\nIUnitOfWork · EF Core"]
+    end
+
+    SIG -->|reads / writes| SVC
+    SVC -->|HttpClient| INT2
+    INT2 -->|"Bearer JWT\nHTTPS"| CTRL2
+    CTRL2 --> PIPE
+    PIPE --> REPO2
+    REPO2 -->|"JSON response\n(DTO)"| CTRL2
+    CTRL2 -->|HTTP 200 / 4xx / 5xx| INT2
+    INT2 -->|Observable| SVC
+    SVC -->|".set() / .update()"| SIG
+```
+
+---
+
+## �🔷 Backend Structure (.NET Clean Architecture)
 
 ### 🟣 Domain Layer — Pure Business Logic
 
