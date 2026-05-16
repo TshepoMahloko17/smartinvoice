@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080f1f"/>
+      <stop offset="100%" stop-color="#0f1f3a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1e3a8a" opacity="0.45"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <rect width="1280" height="400" fill="url(#dots)"/>
+
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accent)"/>
+
+  <!-- Decorative concentric rings (right) -->
+  <circle cx="1100" cy="200" r="230" fill="none" stroke="#1e3a8a" stroke-width="1"   opacity="0.35"/>
+  <circle cx="1100" cy="200" r="180" fill="none" stroke="#1e40af" stroke-width="1"   opacity="0.35"/>
+  <circle cx="1100" cy="200" r="130" fill="none" stroke="#2563eb" stroke-width="1.5" opacity="0.30"/>
+  <circle cx="1100" cy="200" r="80"  fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Left vertical accent bar -->
+  <rect x="80" y="88" width="4" height="224" rx="2" fill="url(#accent)"/>
+
+  <!-- Title -->
+  <text x="110" y="190"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="80" font-weight="700" letter-spacing="-2">
+    <tspan fill="#f1f5f9">Smart</tspan><tspan fill="#60a5fa">Invoice</tspan>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="113" y="234"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="21" fill="#94a3b8" letter-spacing="0.3">
+    Enterprise Invoice &amp; Contract Management System
+  </text>
+
+  <!-- Tech badge pills -->
+  <rect x="113" y="265" width="118" height="34" rx="17" fill="#450a0a"  stroke="#ef4444" stroke-width="1.5"/>
+  <text x="172" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#fca5a5" text-anchor="middle">Angular 17+</text>
+
+  <rect x="243" y="265" width="98"  height="34" rx="17" fill="#2e1065"  stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="292" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c4b5fd" text-anchor="middle">.NET 9</text>
+
+  <rect x="353" y="265" width="126" height="34" rx="17" fill="#0c2a4a"  stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="416" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7dd3fc" text-anchor="middle">PostgreSQL</text>
+
+  <rect x="491" y="265" width="166" height="34" rx="17" fill="#052e16"  stroke="#22c55e" stroke-width="1.5"/>
+  <text x="574" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#86efac" text-anchor="middle">Clean Architecture</text>
+
+  <rect x="669" y="265" width="90"  height="34" rx="17" fill="#0c1c3a"  stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="714" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7dd3fc" text-anchor="middle">CQRS</text>
+
+  <rect x="771" y="265" width="96"  height="34" rx="17" fill="#0c3a3a"  stroke="#14b8a6" stroke-width="1.5"/>
+  <text x="819" y="287" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#5eead4" text-anchor="middle">Docker</text>
+
+  <!-- Live URL -->
+  <text x="115" y="352"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="14" fill="#475569" letter-spacing="0.3">
+    smartinvoice-theta.vercel.app
+  </text>
+
+  <!-- Invoice card — drop shadow -->
+  <rect x="990" y="112" width="168" height="208" rx="12" fill="#000000" opacity="0.45"/>
+  <!-- Invoice card — body -->
+  <rect x="984" y="106" width="168" height="208" rx="12" fill="#1e293b" stroke="#2d3f55" stroke-width="1.5"/>
+  <!-- Invoice card — header (blue top) -->
+  <rect x="984" y="106" width="168" height="48" rx="12" fill="#1d4ed8"/>
+  <rect x="984" y="130" width="168" height="24"        fill="#1d4ed8"/>
+  <!-- Header text -->
+  <text x="1068" y="127" font-family="'Segoe UI', Helvetica, sans-serif" font-size="11" font-weight="700" fill="#ffffff"  text-anchor="middle" letter-spacing="3">INVOICE</text>
+  <text x="1068" y="144" font-family="'Segoe UI', Helvetica, sans-serif" font-size="10"               fill="#bfdbfe" text-anchor="middle">#INV-2026-0042</text>
+  <!-- Content placeholder lines -->
+  <rect x="1004" y="163" width="128" height="7" rx="3.5" fill="#2d3f55"/>
+  <rect x="1004" y="178" width="96"  height="7" rx="3.5" fill="#2d3f55"/>
+  <rect x="1004" y="193" width="116" height="7" rx="3.5" fill="#2d3f55"/>
+  <rect x="1004" y="211" width="80"  height="7" rx="3.5" fill="#2d3f55"/>
+  <rect x="1004" y="226" width="110" height="7" rx="3.5" fill="#2d3f55"/>
+  <!-- Divider -->
+  <rect x="1000" y="246" width="132" height="1" fill="#334155"/>
+  <!-- Amount row -->
+  <rect x="1004" y="254" width="55"  height="7" rx="3.5" fill="#2d3f55"/>
+  <rect x="1077" y="254" width="55"  height="7" rx="3.5" fill="#475569"/>
+  <!-- PAID badge -->
+  <rect x="1018" y="268" width="100" height="28" rx="7" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="1068" y="286" font-family="'Segoe UI', Helvetica, sans-serif" font-size="12" font-weight="700" fill="#4ade80" text-anchor="middle">PAID</text>
+</svg>

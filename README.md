@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>💼 SmartInvoice</h1>
-  <p><strong>Enterprise Finance — Smart Invoice & Contract Management System</strong></p>
+  <img src="banner.svg" alt="SmartInvoice — Enterprise Invoice &amp; Contract Management System" width="100%"/>
+  <br/><br/>
   <p>
     <img src="https://img.shields.io/badge/Angular-17+-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
     <img src="https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
