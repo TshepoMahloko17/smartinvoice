@@ -20,7 +20,7 @@
 | **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)                          |
 | **Backend API** | [smartinvoice-production.up.railway.app](https://smartinvoice-production.up.railway.app/health) |
 
-> Demo credentials: `admin@smartinvoice.com` / `Admin@123`
+> Demo credentials: `admin@smartinvoice.app` / `Admin@123`
 
 ---
 
