@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject, signal, computed } from "@angular/core";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { Router, RouterLink } from "@angular/router";
 import { BaseChartDirective } from "ng2-charts";
@@ -41,16 +41,16 @@ import {
         <app-stat-card
           label="TOTAL REVENUE"
           [value]="
-            (stats?.totalRevenue | currency: 'ZAR' : 'R' : '1.0-0') ?? 'R0'
+            (stats()?.totalRevenue | currency: 'ZAR' : 'R' : '1.0-0') ?? 'R0'
           "
           icon="receipt_long"
           iconColor="#0052cb"
           iconBg="#e8f0fe"
-          [change]="stats?.revenueChangePercent"
+          [change]="stats()?.revenueChangePercent"
           [changeLabel]="
-            stats &&
-            stats.revenueChangePercent == null &&
-            stats.totalRevenue > 0
+            stats() &&
+            stats()!.revenueChangePercent == null &&
+            stats()!.totalRevenue > 0
               ? 'New'
               : undefined
           "
@@ -58,42 +58,44 @@ import {
         />
         <app-stat-card
           label="PENDING INVOICES"
-          [value]="stats?.pendingInvoicesCount?.toString() ?? '0'"
+          [value]="stats()?.pendingInvoicesCount?.toString() ?? '0'"
           icon="pending_actions"
           iconColor="#f97316"
           iconBg="#fff7ed"
-          [change]="stats?.pendingChangePercent"
+          [change]="stats()?.pendingChangePercent"
           [changeLabel]="
-            stats &&
-            stats.pendingChangePercent == null &&
-            stats.pendingInvoicesCount > 0
+            stats() &&
+            stats()!.pendingChangePercent == null &&
+            stats()!.pendingInvoicesCount > 0
               ? 'New'
               : undefined
           "
-          [subtitle]="pendingAmount + ' total pending'"
+          [subtitle]="pendingAmount() + ' total pending'"
         />
         <app-stat-card
           label="ACTIVE CLIENTS"
-          [value]="stats?.activeClientsCount?.toString() ?? '0'"
+          [value]="stats()?.activeClientsCount?.toString() ?? '0'"
           icon="group"
           iconColor="#0ea5e9"
           iconBg="#e0f2fe"
           [changeLabel]="
-            stats ? '+ ' + stats.newClientsThisMonth + ' new' : undefined
+            stats() ? '+ ' + stats()!.newClientsThisMonth + ' new' : undefined
           "
           subtitle="this month growth"
         />
         <app-stat-card
           label="PAID THIS MONTH"
           [value]="
-            (stats?.paidThisMonth | currency: 'ZAR' : 'R' : '1.0-0') ?? 'R0'
+            (stats()?.paidThisMonth | currency: 'ZAR' : 'R' : '1.0-0') ?? 'R0'
           "
           icon="verified"
           iconColor="#10b981"
           iconBg="#d1fae5"
-          [change]="stats?.paidChangePercent"
+          [change]="stats()?.paidChangePercent"
           [changeLabel]="
-            stats && stats.paidChangePercent == null && stats.paidThisMonth > 0
+            stats() &&
+            stats()!.paidChangePercent == null &&
+            stats()!.paidThisMonth > 0
               ? 'New'
               : undefined
           "
@@ -113,7 +115,7 @@ import {
               <mat-icon style="font-size:16px; width:16px; height:16px;"
                 >filter_list</mat-icon
               >
-              {{ filterStatus === null ? "Filter" : filterStatusLabel }}
+              {{ filterStatus() === null ? "Filter" : filterStatusLabel() }}
             </button>
             <mat-menu #filterMenu="matMenu">
               <button
@@ -203,7 +205,7 @@ import {
             </tr>
           </thead>
           <tbody>
-            @for (inv of recentInvoices; track inv.id) {
+            @for (inv of recentInvoices(); track inv.id) {
               <tr
                 class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors"
               >
@@ -262,10 +264,10 @@ import {
           <span
             >Showing
             <span class="font-bold text-slate-900">{{
-              recentInvoices.length
+              recentInvoices().length
             }}</span>
             of
-            <span class="font-bold text-slate-900">{{ totalInvoices }}</span>
+            <span class="font-bold text-slate-900">{{ totalInvoices() }}</span>
             invoices</span
           >
           <div class="flex items-center gap-4">
@@ -274,7 +276,7 @@ import {
               <select
                 class="bg-transparent border-none text-sm font-bold focus:outline-none cursor-pointer"
                 (change)="
-                  pageSize = +$any($event.target).value; onPageSizeChange()
+                  pageSize.set(+$any($event.target).value); onPageSizeChange()
                 "
               >
                 <option value="5">5</option>
@@ -287,20 +289,20 @@ import {
             >
               <button
                 class="p-2 hover:bg-slate-50 text-slate-400 transition-colors border-0 bg-transparent outline-none cursor-pointer disabled:opacity-30"
-                [disabled]="currentPage === 1"
-                (click)="changePage(currentPage - 1)"
+                [disabled]="currentPage() === 1"
+                (click)="changePage(currentPage() - 1)"
               >
                 <mat-icon style="font-size:16px; width:16px; height:16px;"
                   >chevron_left</mat-icon
                 >
               </button>
-              @for (p of visiblePages; track p) {
+              @for (p of visiblePages(); track p) {
                 <button
                   class="px-3.5 py-2 text-sm font-medium transition-colors border-0 outline-none cursor-pointer"
-                  [class.text-white]="currentPage === p"
-                  [class.text-slate-600]="currentPage !== p"
+                  [class.text-white]="currentPage() === p"
+                  [class.text-slate-600]="currentPage() !== p"
                   [style.background]="
-                    currentPage === p ? '#0052cb' : 'transparent'
+                    currentPage() === p ? '#0052cb' : 'transparent'
                   "
                   (click)="changePage(p)"
                 >
@@ -309,8 +311,8 @@ import {
               }
               <button
                 class="p-2 hover:bg-slate-50 text-slate-400 transition-colors border-0 bg-transparent outline-none cursor-pointer disabled:opacity-30"
-                [disabled]="currentPage === totalPages"
-                (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage() === totalPages()"
+                (click)="changePage(currentPage() + 1)"
               >
                 <mat-icon style="font-size:16px; width:16px; height:16px;"
                   >chevron_right</mat-icon
@@ -335,13 +337,13 @@ import {
           <div class="flex bg-slate-100 p-1 rounded-lg">
             @for (p of ["3M", "6M", "1Y"]; track p) {
               <button
-                (click)="activePeriod = p; loadChart(p)"
+                (click)="activePeriod.set(p); loadChart(p)"
                 class="px-3 py-1 text-xs font-semibold transition-colors rounded-md border-0 outline-none cursor-pointer"
-                [class.text-white]="activePeriod === p"
-                [class.shadow-sm]="activePeriod === p"
-                [class.text-slate-600]="activePeriod !== p"
+                [class.text-white]="activePeriod() === p"
+                [class.shadow-sm]="activePeriod() === p"
+                [class.text-slate-600]="activePeriod() !== p"
                 [style.background]="
-                  activePeriod === p ? '#1d6af5' : 'transparent'
+                  activePeriod() === p ? '#1d6af5' : 'transparent'
                 "
               >
                 {{ p }}
@@ -402,36 +404,43 @@ import {
 export class DashboardComponent implements OnInit {
   private readonly dashboardSvc = inject(DashboardService);
   private readonly invoiceSvc = inject(InvoiceService);
-
   private readonly router = inject(Router);
-  stats: DashboardStats | null = null;
-  recentInvoices: Invoice[] = [];
-  totalInvoices = 0;
-  activePeriod = "6M";
-  currentPage = 1;
-  pageSize = 5;
-  filterStatus: InvoiceStatus | null = null;
+
+  readonly stats = signal<DashboardStats | null>(null);
+  readonly recentInvoices = signal<Invoice[]>([]);
+  readonly totalInvoices = signal(0);
+  readonly activePeriod = signal("6M");
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(5);
+  readonly filterStatus = signal<InvoiceStatus | null>(null);
   readonly InvoiceStatus = InvoiceStatus;
 
-  get pendingAmount(): string {
-    if (!this.stats) return "R0";
+  readonly pendingAmount = computed(() => {
+    const s = this.stats();
+    if (!s) return "R0";
     return (
       "R" +
       new Intl.NumberFormat("en-ZA", {
         maximumFractionDigits: 0,
-      }).format(this.stats.pendingInvoicesTotal)
+      }).format(s.pendingInvoicesTotal)
     );
-  }
+  });
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalInvoices / this.pageSize));
-  }
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.totalInvoices() / this.pageSize())),
+  );
 
-  get visiblePages(): number[] {
+  readonly visiblePages = computed(() => {
     const pages: number[] = [];
-    for (let i = 1; i <= Math.min(this.totalPages, 3); i++) pages.push(i);
+    for (let i = 1; i <= Math.min(this.totalPages(), 3); i++) pages.push(i);
     return pages;
-  }
+  });
+
+  readonly filterStatusLabel = computed(() =>
+    this.filterStatus() !== null
+      ? InvoiceStatusLabels[this.filterStatus()!]
+      : "All",
+  );
 
   chartData: ChartData<"line"> = { labels: [], datasets: [] };
   chartOptions: ChartConfiguration["options"] = {
@@ -464,33 +473,27 @@ export class DashboardComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.dashboardSvc.getStats().subscribe((s) => (this.stats = s));
+    this.dashboardSvc.getStats().subscribe((s) => this.stats.set(s));
     this.loadChart("6M");
     this.loadInvoices();
-  }
-
-  get filterStatusLabel(): string {
-    return this.filterStatus !== null
-      ? InvoiceStatusLabels[this.filterStatus]
-      : "All";
   }
 
   loadInvoices(): void {
     this.invoiceSvc
       .getInvoices({
-        page: this.currentPage,
-        pageSize: this.pageSize,
-        status: this.filterStatus ?? undefined,
+        page: this.currentPage(),
+        pageSize: this.pageSize(),
+        status: this.filterStatus() ?? undefined,
       })
       .subscribe((r) => {
-        this.recentInvoices = r.items;
-        this.totalInvoices = r.totalCount;
+        this.recentInvoices.set(r.items);
+        this.totalInvoices.set(r.totalCount);
       });
   }
 
   applyFilter(status: InvoiceStatus | null): void {
-    this.filterStatus = status;
-    this.currentPage = 1;
+    this.filterStatus.set(status);
+    this.currentPage.set(1);
     this.loadInvoices();
   }
 
@@ -505,13 +508,13 @@ export class DashboardComponent implements OnInit {
   }
 
   changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
     this.loadInvoices();
   }
 
   onPageSizeChange(): void {
-    this.currentPage = 1;
+    this.currentPage.set(1);
     this.loadInvoices();
   }
 

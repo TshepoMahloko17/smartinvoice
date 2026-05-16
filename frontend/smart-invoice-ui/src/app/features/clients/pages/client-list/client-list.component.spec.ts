@@ -38,20 +38,18 @@ describe("ClientListComponent", () => {
 
   beforeEach(async () => {
     svc = {
-      getClients: jest
-        .fn()
-        .mockReturnValue(
-          of(
-            makePagedResult([
-              makeClient(),
-              makeClient({
-                id: "client-2",
-                name: "Beta Ltd",
-                email: "beta@example.com",
-              }),
-            ]),
-          ),
+      getClients: jest.fn().mockReturnValue(
+        of(
+          makePagedResult([
+            makeClient(),
+            makeClient({
+              id: "client-2",
+              name: "Beta Ltd",
+              email: "beta@example.com",
+            }),
+          ]),
         ),
+      ),
     };
 
     await TestBed.configureTestingModule({
@@ -73,11 +71,11 @@ describe("ClientListComponent", () => {
   it("loads clients on init", () => {
     expect(svc.getClients).toHaveBeenCalledTimes(1);
     expect(svc.getClients).toHaveBeenCalledWith(1, 20, "");
-    expect(component.result?.items.length).toBe(2);
+    expect(component.result()?.items.length).toBe(2);
   });
 
   it("load() is called again when search changes", () => {
-    component.search = "Acme";
+    component.search.set("Acme");
     component.load();
     expect(svc.getClients).toHaveBeenCalledTimes(2);
     expect(svc.getClients).toHaveBeenCalledWith(1, 20, "Acme");
@@ -86,6 +84,6 @@ describe("ClientListComponent", () => {
   it("result is null initially before ngOnInit resolves", () => {
     // Create a fresh component without detectChanges to inspect pre-init state
     const freshFixture = TestBed.createComponent(ClientListComponent);
-    expect(freshFixture.componentInstance.result).toBeNull();
+    expect(freshFixture.componentInstance.result()).toBeNull();
   });
 });

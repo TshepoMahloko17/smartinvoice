@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
@@ -50,7 +50,7 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
             </tr>
           </thead>
           <tbody>
-            @for (p of result?.items; track p.id) {
+            @for (p of result()?.items; track p.id) {
               <tr class="border-b border-gray-50 hover:bg-gray-50">
                 <td class="px-4 py-3 font-medium text-[#0052cb]">
                   {{ p.invoiceNumber }}
@@ -94,10 +94,10 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
 export class PaymentListComponent implements OnInit {
   private readonly svc = inject(PaymentService);
   private readonly dialog = inject(MatDialog);
-  result: PagedResult<Payment> | null = null;
+  readonly result = signal<PagedResult<Payment> | null>(null);
 
   ngOnInit(): void {
-    this.svc.getPayments().subscribe((r) => (this.result = r));
+    this.svc.getPayments().subscribe((r) => this.result.set(r));
   }
 
   delete(id: string): void {
@@ -116,11 +116,12 @@ export class PaymentListComponent implements OnInit {
         switchMap(() => this.svc.delete(id)),
       )
       .subscribe(() => {
-        if (this.result)
-          this.result = {
-            ...this.result,
-            items: this.result.items.filter((p) => p.id !== id),
-          };
+        const cur = this.result();
+        if (cur)
+          this.result.set({
+            ...cur,
+            items: cur.items.filter((p) => p.id !== id),
+          });
       });
   }
 }

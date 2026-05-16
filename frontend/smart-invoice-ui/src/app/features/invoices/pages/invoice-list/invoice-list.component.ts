@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject, signal } from "@angular/core";
 import { CommonModule, CurrencyPipe } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -52,8 +52,8 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
           <mat-label>Search</mat-label>
           <input
             matInput
-            [(ngModel)]="search"
-            (ngModelChange)="onFilter()"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event); onFilter()"
             placeholder="Invoice #, client…"
           />
           <mat-icon matSuffix>search</mat-icon>
@@ -64,8 +64,8 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
         >
           <mat-label>Status</mat-label>
           <mat-select
-            [(ngModel)]="statusFilter"
-            (ngModelChange)="onFilter()"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event); onFilter()"
           >
             <mat-option [value]="null">All</mat-option>
             <mat-option [value]="InvoiceStatus.Draft">Draft</mat-option>
@@ -94,7 +94,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
             </tr>
           </thead>
           <tbody>
-            @for (inv of result?.items; track inv.id) {
+            @for (inv of result()?.items; track inv.id) {
               <tr
                 class="border-b border-gray-50 hover:bg-gray-50 transition-colors"
               >
@@ -117,7 +117,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                 <td class="px-4 py-3 text-right">
                   <button
                     mat-icon-button
-                    [disabled]="downloadingId === inv.id"
+                    [disabled]="downloadingId() === inv.id"
                     (click)="downloadPdf(inv.id, inv.invoiceNumber)"
                     title="Download PDF"
                     aria-label="Download invoice PDF"
@@ -127,7 +127,7 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
                       style="font-size:18px; width:18px; height:18px;"
                     >
                       {{
-                        downloadingId === inv.id
+                        downloadingId() === inv.id
                           ? "hourglass_empty"
                           : "download"
                       }}
@@ -158,28 +158,28 @@ import { PagedResult } from "../../../../shared/models/api-response.model";
         </table>
 
         <!-- Pagination -->
-        @if (result && result.totalPages > 1) {
+        @if (result() && result()!.totalPages > 1) {
           <div
             class="flex items-center justify-between px-4 py-3 border-t border-gray-100"
           >
             <span class="text-xs text-gray-500">
-              Page {{ result.pageNumber }} of {{ result.totalPages }} ({{
-                result.totalCount
+              Page {{ result()!.pageNumber }} of {{ result()!.totalPages }} ({{
+                result()!.totalCount
               }}
               total)
             </span>
             <div class="flex gap-2">
               <button
                 mat-stroked-button
-                [disabled]="!result.hasPreviousPage"
-                (click)="goToPage(page - 1)"
+                [disabled]="!result()!.hasPreviousPage"
+                (click)="goToPage(page() - 1)"
               >
                 Prev
               </button>
               <button
                 mat-stroked-button
-                [disabled]="!result.hasNextPage"
-                (click)="goToPage(page + 1)"
+                [disabled]="!result()!.hasNextPage"
+                (click)="goToPage(page() + 1)"
               >
                 Next
               </button>
@@ -194,27 +194,27 @@ export class InvoiceListComponent implements OnInit {
   private readonly svc = inject(InvoiceService);
 
   readonly InvoiceStatus = InvoiceStatus;
-  result: PagedResult<Invoice> | null = null;
-  page = 1;
-  search = "";
-  statusFilter: InvoiceStatus | null = null;
-  downloadingId: string | null = null;
+  readonly result = signal<PagedResult<Invoice> | null>(null);
+  readonly page = signal(1);
+  readonly search = signal("");
+  readonly statusFilter = signal<InvoiceStatus | null>(null);
+  readonly downloadingId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.load();
   }
 
   onFilter(): void {
-    this.page = 1;
+    this.page.set(1);
     this.load();
   }
   goToPage(p: number): void {
-    this.page = p;
+    this.page.set(p);
     this.load();
   }
 
   downloadPdf(id: string, invoiceNumber: string): void {
-    this.downloadingId = id;
+    this.downloadingId.set(id);
     this.svc.downloadPdf(id).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
@@ -223,18 +223,18 @@ export class InvoiceListComponent implements OnInit {
         a.download = `${invoiceNumber}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
-        this.downloadingId = null;
+        this.downloadingId.set(null);
       },
       error: () => {
-        this.downloadingId = null;
+        this.downloadingId.set(null);
       },
     });
   }
 
   private load(): void {
-    const q: InvoiceQuery = { page: this.page, pageSize: 10 };
-    if (this.search) q.search = this.search;
-    if (this.statusFilter != null) q.status = this.statusFilter;
-    this.svc.getInvoices(q).subscribe((r) => (this.result = r));
+    const q: InvoiceQuery = { page: this.page(), pageSize: 10 };
+    if (this.search()) q.search = this.search();
+    if (this.statusFilter() != null) q.status = this.statusFilter()!;
+    this.svc.getInvoices(q).subscribe((r) => this.result.set(r));
   }
 }

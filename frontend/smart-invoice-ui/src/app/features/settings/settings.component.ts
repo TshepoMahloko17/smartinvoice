@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { AuthService } from "../../core/services/auth.service";
@@ -16,11 +16,11 @@ import { AuthService } from "../../core/services/auth.service";
           <div
             class="w-16 h-16 rounded-full bg-[#0052cb] flex items-center justify-center text-white text-2xl font-semibold"
           >
-            {{ initials }}
+            {{ initials() }}
           </div>
           <div>
-            <p class="text-lg font-semibold text-gray-900">{{ fullName }}</p>
-            <p class="text-sm text-gray-500">{{ userEmail }}</p>
+            <p class="text-lg font-semibold text-gray-900">{{ fullName() }}</p>
+            <p class="text-sm text-gray-500">{{ userEmail() }}</p>
           </div>
         </div>
 
@@ -33,7 +33,7 @@ import { AuthService } from "../../core/services/auth.service";
             >
               First Name
             </p>
-            <p class="text-gray-700">{{ firstName || "�" }}</p>
+            <p class="text-gray-700">{{ firstName() || "�" }}</p>
           </div>
           <div>
             <p
@@ -41,7 +41,7 @@ import { AuthService } from "../../core/services/auth.service";
             >
               Last Name
             </p>
-            <p class="text-gray-700">{{ lastName || "�" }}</p>
+            <p class="text-gray-700">{{ lastName() || "�" }}</p>
           </div>
           <div class="col-span-2">
             <p
@@ -49,7 +49,7 @@ import { AuthService } from "../../core/services/auth.service";
             >
               Email
             </p>
-            <p class="text-gray-700">{{ userEmail || "�" }}</p>
+            <p class="text-gray-700">{{ userEmail() || "�" }}</p>
           </div>
         </div>
       </div>
@@ -71,29 +71,21 @@ import { AuthService } from "../../core/services/auth.service";
 export class SettingsComponent {
   private readonly auth = inject(AuthService);
 
-  get fullName(): string {
-    const u = this.auth.currentUser;
+  readonly fullName = computed(() => {
+    const u = this.auth.currentUser();
     if (!u) return "";
     return `${u.firstName} ${u.lastName}`.trim();
-  }
+  });
 
-  get firstName(): string {
-    return this.auth.currentUser?.firstName ?? "";
-  }
+  readonly firstName = computed(() => this.auth.currentUser()?.firstName ?? "");
+  readonly lastName = computed(() => this.auth.currentUser()?.lastName ?? "");
+  readonly userEmail = computed(() => this.auth.currentUser()?.email ?? "");
 
-  get lastName(): string {
-    return this.auth.currentUser?.lastName ?? "";
-  }
-
-  get userEmail(): string {
-    return this.auth.currentUser?.email ?? "";
-  }
-
-  get initials(): string {
-    const u = this.auth.currentUser;
+  readonly initials = computed(() => {
+    const u = this.auth.currentUser();
     if (!u) return "U";
     return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
-  }
+  });
 
   logout(): void {
     this.auth.logout();
