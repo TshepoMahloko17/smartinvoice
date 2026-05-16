@@ -23,7 +23,7 @@ jobs:
         working-directory: backend
 
   frontend:
-    name: Angular Build
+    name: Angular Tests & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,5 +34,9 @@ jobs:
           cache-dependency-path: frontend/smart-invoice-ui/package-lock.json
       - run: npm ci --legacy-peer-deps
         working-directory: frontend/smart-invoice-ui
-      - run: npx ng build --configuration production
+      - name: Run Jest tests
+        run: npx jest --passWithNoTests --ci
+        working-directory: frontend/smart-invoice-ui
+      - name: Production build
+        run: npx ng build --configuration production
         working-directory: frontend/smart-invoice-ui
