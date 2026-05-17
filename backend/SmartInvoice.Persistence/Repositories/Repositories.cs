@@ -21,7 +21,7 @@ public class InvoiceRepository : GenericRepository<Invoice>
         Expression<Func<Invoice, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Invoices.Include(i => i.Client).AsQueryable();
+        var query = _context.Invoices.Include(i => i.Client).Include(i => i.Payments).AsQueryable();
         if (predicate is not null) query = query.Where(predicate);
         var total = await query.CountAsync(cancellationToken);
         var items = await query

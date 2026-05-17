@@ -130,7 +130,7 @@ public class RecordPaymentHandlerTests
     }
 
     [Fact]
-    public async Task Handle_PartialPayment_DoesNotMarkAsPaid()
+    public async Task Handle_PartialPayment_SetsPartiallyPaidStatus()
     {
         var invoiceId = Guid.NewGuid();
         var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
@@ -145,7 +145,89 @@ public class RecordPaymentHandlerTests
         await CreateHandler().Handle(cmd, CancellationToken.None);
 
         var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
-        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.Pending, status);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.PartiallyPaid, status);
+    }
+
+    [Fact]
+    public async Task Handle_CumulativePaymentsCoverFull_MarksAsPaid()
+    {
+        var invoiceId = Guid.NewGuid();
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+        // Simulate a prior partial payment of 600
+        var priorPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 600m };
+
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        _paymentRepo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync([priorPayment]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        // New payment covers the remaining 400
+        var cmd = new RecordPaymentCommand(invoiceId, 400m, DateTime.UtcNow, null, null);
+        await CreateHandler().Handle(cmd, CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.Paid, status);
+    }
+
+    [Fact]
+    public async Task Handle_CumulativePartialPayments_SetsPartiallyPaid()
+    {
+        var invoiceId = Guid.NewGuid();
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+        var priorPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 300m };
+
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        _paymentRepo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync([priorPayment]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        // Add another partial payment — total 300 + 200 = 500, still below 1000
+        var cmd = new RecordPaymentCommand(invoiceId, 200m, DateTime.UtcNow, null, null);
+        await CreateHandler().Handle(cmd, CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.PartiallyPaid, status);
+    }
+
+    [Fact]
+    public async Task Handle_AmountExceedsOutstandingBalance_ThrowsValidationException()
+    {
+        var invoiceId = Guid.NewGuid();
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+        var priorPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 800m };
+
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        _paymentRepo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync([priorPayment]);
+
+        // Outstanding is 200, but trying to pay 500
+        var cmd = new RecordPaymentCommand(invoiceId, 500m, DateTime.UtcNow, null, null);
+        await Assert.ThrowsAsync<ValidationException>(() =>
+            CreateHandler().Handle(cmd, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_ExactOutstandingBalance_MarksAsPaid()
+    {
+        var invoiceId = Guid.NewGuid();
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+        var priorPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 750m };
+
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        _paymentRepo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync([priorPayment]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        // Pay exactly the remaining 250
+        var cmd = new RecordPaymentCommand(invoiceId, 250m, DateTime.UtcNow, null, null);
+        await CreateHandler().Handle(cmd, CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.Paid, status);
     }
 
     [Fact]
@@ -172,16 +254,24 @@ public class RecordPaymentHandlerTests
 public class DeletePaymentHandlerTests
 {
     private readonly Mock<IRepository<Payment>> _repo = new();
+    private readonly Mock<IRepository<Invoice>> _invoiceRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
 
-    private DeletePaymentHandler CreateHandler() => new(_repo.Object, _uow.Object);
+    private DeletePaymentHandler CreateHandler() => new(_repo.Object, _invoiceRepo.Object, _uow.Object);
 
     [Fact]
     public async Task Handle_ExistingPayment_SoftDeletes()
     {
-        var payment = new Payment { Id = Guid.NewGuid(), Amount = 100m };
+        var invoiceId = Guid.NewGuid();
+        var payment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 100m };
+        var invoice = Helpers.MakeInvoice(invoiceId, 500m);
+
         _repo.Setup(r => r.GetByIdAsync(payment.Id, It.IsAny<CancellationToken>()))
              .ReturnsAsync(payment);
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        _repo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync([]);
         _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         await CreateHandler().Handle(new DeletePaymentCommand(payment.Id), CancellationToken.None);
@@ -198,6 +288,74 @@ public class DeletePaymentHandlerTests
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             CreateHandler().Handle(new DeletePaymentCommand(Guid.NewGuid()), CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_DeleteLastPayment_RevertsToInvoicePending()
+    {
+        var invoiceId = Guid.NewGuid();
+        var payment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 400m };
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+
+        _repo.Setup(r => r.GetByIdAsync(payment.Id, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(payment);
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        // No other payments remain after deletion
+        _repo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync([]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        await CreateHandler().Handle(new DeletePaymentCommand(payment.Id), CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.Pending, status);
+    }
+
+    [Fact]
+    public async Task Handle_DeleteOneOfManyPartialPayments_RemainsPartiallyPaid()
+    {
+        var invoiceId = Guid.NewGuid();
+        var paymentToDelete = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 300m };
+        var remainingPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 200m };
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+
+        _repo.Setup(r => r.GetByIdAsync(paymentToDelete.Id, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(paymentToDelete);
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        // 200 remains — still partial
+        _repo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync([remainingPayment]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        await CreateHandler().Handle(new DeletePaymentCommand(paymentToDelete.Id), CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.PartiallyPaid, status);
+    }
+
+    [Fact]
+    public async Task Handle_DeletePartialPayment_WhenRemainingCoversFull_KeepsPaid()
+    {
+        var invoiceId = Guid.NewGuid();
+        var paymentToDelete = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 100m };
+        var remainingPayment = new Payment { Id = Guid.NewGuid(), InvoiceId = invoiceId, Amount = 1000m };
+        var invoice = Helpers.MakeInvoice(invoiceId, 1000m);
+
+        _repo.Setup(r => r.GetByIdAsync(paymentToDelete.Id, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(paymentToDelete);
+        _invoiceRepo.Setup(r => r.GetByIdAsync(invoiceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(invoice);
+        // Remaining 1000 still covers full total
+        _repo.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Payment, bool>>>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync([remainingPayment]);
+        _uow.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+
+        await CreateHandler().Handle(new DeletePaymentCommand(paymentToDelete.Id), CancellationToken.None);
+
+        var status = typeof(Invoice).GetProperty("Status")!.GetValue(invoice);
+        Assert.Equal(SmartInvoice.Domain.Enums.InvoiceStatus.Paid, status);
     }
 }
 

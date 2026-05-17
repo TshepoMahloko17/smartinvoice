@@ -13,6 +13,8 @@ public class InvoiceDto
     public DateTime DueDate { get; set; }
     public InvoiceStatus Status { get; set; }
     public decimal Total { get; set; }
+    public decimal AmountPaid { get; set; }
+    public decimal Balance { get; set; }
     public string? Notes { get; set; }
     public Currency Currency { get; set; }
     public List<InvoiceItemDto> Items { get; set; } = new();

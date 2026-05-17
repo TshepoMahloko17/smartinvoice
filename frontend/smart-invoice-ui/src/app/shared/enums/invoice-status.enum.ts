@@ -4,6 +4,7 @@ export enum InvoiceStatus {
   Paid = 2,
   Overdue = 3,
   Cancelled = 4,
+  PartiallyPaid = 5,
 }
 
 export const InvoiceStatusLabels: Record<InvoiceStatus, string> = {
@@ -12,4 +13,5 @@ export const InvoiceStatusLabels: Record<InvoiceStatus, string> = {
   [InvoiceStatus.Paid]: "Paid",
   [InvoiceStatus.Overdue]: "Overdue",
   [InvoiceStatus.Cancelled]: "Cancelled",
+  [InvoiceStatus.PartiallyPaid]: "Partially Paid",
 };

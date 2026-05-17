@@ -45,7 +45,10 @@ import { InvoiceStatus } from "../../../../shared/enums/invoice-status.enum";
       >
         <mat-form-field class="w-full">
           <mat-label>Invoice</mat-label>
-          <mat-select formControlName="invoiceId">
+          <mat-select
+            formControlName="invoiceId"
+            (selectionChange)="onInvoiceChange($event.value)"
+          >
             @for (inv of invoices; track inv.id) {
               <mat-option [value]="inv.id">
                 #{{ inv.invoiceNumber }} — {{ inv.clientName }}
@@ -59,17 +62,51 @@ import { InvoiceStatus } from "../../../../shared/enums/invoice-status.enum";
           }
         </mat-form-field>
 
+        @if (selectedInvoice) {
+          <div class="text-sm text-gray-600 -mt-2 flex justify-between">
+            <span
+              >Invoice total:
+              <strong
+                >R{{ selectedInvoice.total | number: "1.2-2" }}</strong
+              ></span
+            >
+            <span
+              >Outstanding:
+              <strong class="text-orange-600"
+                >R{{ selectedInvoice.balance | number: "1.2-2" }}</strong
+              ></span
+            >
+          </div>
+        }
+
         <mat-form-field class="w-full">
           <mat-label>Amount (R)</mat-label>
           <input
             matInput
             type="number"
             formControlName="amount"
-            min="0.01"
+            [attr.min]="0.01"
+            [attr.max]="selectedInvoice?.balance ?? null"
             step="0.01"
           />
-          @if (form.get("amount")?.invalid && form.get("amount")?.touched) {
+          @if (
+            form.get("amount")?.hasError("required") &&
+            form.get("amount")?.touched
+          ) {
             <mat-error>A valid amount is required</mat-error>
+          }
+          @if (form.get("amount")?.hasError("max")) {
+            <mat-error
+              >Amount exceeds the outstanding balance of R{{
+                selectedInvoice?.balance | number: "1.2-2"
+              }}</mat-error
+            >
+          }
+          @if (
+            form.get("amount")?.hasError("min") &&
+            !form.get("amount")?.hasError("required")
+          ) {
+            <mat-error>Amount must be greater than 0</mat-error>
           }
         </mat-form-field>
 
@@ -121,6 +158,7 @@ export class PaymentFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   invoices: Invoice[] = [];
+  selectedInvoice: Invoice | null = null;
   saving = false;
   private invoiceIdFromRoute: string | null = null;
 
@@ -137,14 +175,35 @@ export class PaymentFormComponent implements OnInit {
   ngOnInit(): void {
     this.invoiceIdFromRoute =
       this.route.snapshot.queryParamMap.get("invoiceId");
-    this.invoiceSvc
-      .getInvoices({ page: 1, pageSize: 100, status: InvoiceStatus.Pending })
-      .subscribe((r) => {
-        this.invoices = r.items;
-        if (this.invoiceIdFromRoute) {
-          this.form.patchValue({ invoiceId: this.invoiceIdFromRoute });
-        }
-      });
+    // Load all invoices that can still accept payments (Pending or PartiallyPaid)
+    this.invoiceSvc.getInvoices({ page: 1, pageSize: 100 }).subscribe((r) => {
+      this.invoices = r.items.filter(
+        (inv) =>
+          inv.status === InvoiceStatus.Pending ||
+          inv.status === InvoiceStatus.PartiallyPaid ||
+          inv.status === InvoiceStatus.Overdue,
+      );
+      if (this.invoiceIdFromRoute) {
+        this.form.patchValue({ invoiceId: this.invoiceIdFromRoute });
+        this.onInvoiceChange(this.invoiceIdFromRoute);
+      }
+    });
+  }
+
+  onInvoiceChange(invoiceId: string): void {
+    this.selectedInvoice =
+      this.invoices.find((i) => i.id === invoiceId) ?? null;
+    const amountCtrl = this.form.get("amount")!;
+    if (this.selectedInvoice) {
+      amountCtrl.setValidators([
+        Validators.required,
+        Validators.min(0.01),
+        Validators.max(this.selectedInvoice.balance),
+      ]);
+    } else {
+      amountCtrl.setValidators([Validators.required, Validators.min(0.01)]);
+    }
+    amountCtrl.updateValueAndValidity();
   }
 
   submit(): void {

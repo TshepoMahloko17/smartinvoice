@@ -33,20 +33,26 @@ public class GetInvoicesHandler : IRequestHandler<GetInvoicesQuery, PagedResult<
                      || i.Client.Name.Contains(request.Search)),
             cancellationToken);
 
-        var dtos = items.Select(i => new InvoiceDto
+        var dtos = items.Select(i =>
         {
-            Id = i.Id,
-            InvoiceNumber = i.InvoiceNumber,
-            ClientId = i.ClientId,
-            ClientName = i.Client?.Name ?? string.Empty,
-            ClientEmail = i.Client?.Email ?? string.Empty,
-            IssuedDate = i.IssuedDate,
-            DueDate = i.DueDate,
-            Status = i.Status,
-            Total = i.Total,
-            Notes = i.Notes,
-            Currency = i.Currency,
-            CreatedAt = i.CreatedAt
+            var amountPaid = i.Payments?.Where(p => !p.IsDeleted).Sum(p => p.Amount) ?? 0m;
+            return new InvoiceDto
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                ClientId = i.ClientId,
+                ClientName = i.Client?.Name ?? string.Empty,
+                ClientEmail = i.Client?.Email ?? string.Empty,
+                IssuedDate = i.IssuedDate,
+                DueDate = i.DueDate,
+                Status = i.Status,
+                Total = i.Total,
+                AmountPaid = amountPaid,
+                Balance = i.Total - amountPaid,
+                Notes = i.Notes,
+                Currency = i.Currency,
+                CreatedAt = i.CreatedAt
+            };
         });
 
         return new PagedResult<InvoiceDto>

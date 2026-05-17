@@ -1,8 +1,10 @@
+using FluentValidation.Results;
 using MediatR;
 using SmartInvoice.Application.Common;
 using SmartInvoice.Application.Common.Exceptions;
 using SmartInvoice.Application.DTOs;
 using SmartInvoice.Domain.Entities;
+using SmartInvoice.Domain.Enums;
 using SmartInvoice.Domain.Interfaces;
 
 namespace SmartInvoice.Application.Features.Payments;
@@ -33,6 +35,19 @@ public class RecordPaymentHandler : IRequestHandler<RecordPaymentCommand, Paymen
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId, cancellationToken)
             ?? throw new NotFoundException(nameof(Invoice), request.InvoiceId);
 
+        // Compute outstanding balance before adding the new payment
+        var existingPayments = await _paymentRepository.FindAsync(
+            p => p.InvoiceId == request.InvoiceId && !p.IsDeleted, cancellationToken);
+        var totalAlreadyPaid = existingPayments.Sum(p => p.Amount);
+        var outstandingBalance = invoice.Total - totalAlreadyPaid;
+
+        if (request.Amount > outstandingBalance)
+            throw new ValidationException(new[]
+            {
+                new ValidationFailure("Amount",
+                    $"Payment amount exceeds the outstanding balance of {outstandingBalance:F2}.")
+            });
+
         var payment = new Payment
         {
             InvoiceId = request.InvoiceId,
@@ -44,12 +59,11 @@ public class RecordPaymentHandler : IRequestHandler<RecordPaymentCommand, Paymen
 
         await _paymentRepository.AddAsync(payment, cancellationToken);
 
-        // Auto-mark invoice as Paid if total is covered
-        var existingPayments = await _paymentRepository.FindAsync(
-            p => p.InvoiceId == request.InvoiceId, cancellationToken);
-
-        var totalPaid = existingPayments.Sum(p => p.Amount) + request.Amount;
-        if (totalPaid >= invoice.Total) invoice.MarkAsPaid();
+        var totalPaid = totalAlreadyPaid + request.Amount;
+        if (totalPaid >= invoice.Total)
+            invoice.MarkAsPaid();
+        else if (totalPaid > 0)
+            invoice.MarkAsPartiallyPaid();
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -113,11 +127,16 @@ public record DeletePaymentCommand(Guid Id) : IRequest;
 public class DeletePaymentHandler : IRequestHandler<DeletePaymentCommand>
 {
     private readonly IRepository<Payment> _repository;
+    private readonly IRepository<Invoice> _invoiceRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeletePaymentHandler(IRepository<Payment> repository, IUnitOfWork unitOfWork)
+    public DeletePaymentHandler(
+        IRepository<Payment> repository,
+        IRepository<Invoice> invoiceRepository,
+        IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -129,6 +148,26 @@ public class DeletePaymentHandler : IRequestHandler<DeletePaymentCommand>
         payment.IsDeleted = true;
         payment.UpdatedAt = DateTime.UtcNow;
         _repository.Update(payment);
+
+        // Recalculate invoice status based on remaining payments
+        var invoice = await _invoiceRepository.GetByIdAsync(payment.InvoiceId, cancellationToken)
+            ?? throw new NotFoundException(nameof(Invoice), payment.InvoiceId);
+
+        var remainingPayments = await _repository.FindAsync(
+            p => p.InvoiceId == payment.InvoiceId && !p.IsDeleted && p.Id != payment.Id,
+            cancellationToken);
+        var totalRemaining = remainingPayments.Sum(p => p.Amount);
+
+        if (totalRemaining >= invoice.Total)
+            invoice.MarkAsPaid();
+        else if (totalRemaining > 0)
+            invoice.MarkAsPartiallyPaid();
+        else
+            invoice.UpdateStatus(InvoiceStatus.Pending);
+
+        invoice.UpdatedAt = DateTime.UtcNow;
+        _invoiceRepository.Update(invoice);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

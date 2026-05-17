@@ -233,6 +233,20 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
                   </td>
                   <td></td>
                 </tr>
+                @if (invoice.balance > 0) {
+                  <tr>
+                    <td
+                      colspan="3"
+                      class="pt-1 text-right text-xs text-gray-500 uppercase"
+                    >
+                      Balance Due
+                    </td>
+                    <td class="pt-1 text-right font-semibold text-orange-600">
+                      {{ invoice.balance | currency: "ZAR" : "R" }}
+                    </td>
+                    <td></td>
+                  </tr>
+                }
               </tfoot>
             </table>
           }
@@ -293,8 +307,10 @@ export class InvoiceDetailComponent implements OnInit {
       .pipe(
         filter((confirmed) => !!confirmed),
         switchMap(() => this.paymentSvc.delete(payment.id)),
+        switchMap(() => this.svc.getById(this.invoice!.id)),
       )
-      .subscribe(() => {
+      .subscribe((updated) => {
+        this.invoice = updated;
         this.payments = this.payments.filter((p) => p.id !== payment.id);
       });
   }

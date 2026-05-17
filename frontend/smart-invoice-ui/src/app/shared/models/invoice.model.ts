@@ -11,6 +11,8 @@ export interface Invoice {
   dueDate: string;
   status: InvoiceStatus;
   total: number;
+  amountPaid: number;
+  balance: number;
   notes?: string;
   currency: Currency;
   items: InvoiceItem[];
