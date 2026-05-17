@@ -66,6 +66,11 @@ public class Invoice : BaseEntity
         _domainEvents.Add(new InvoicePaidEvent(Id));
     }
 
+    public void MarkAsPartiallyPaid()
+    {
+        Status = InvoiceStatus.PartiallyPaid;
+    }
+
     public void MarkAsOverdue()
     {
         if (Status != InvoiceStatus.Paid)

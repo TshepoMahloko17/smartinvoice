@@ -19,6 +19,7 @@ public class GetInvoiceByIdHandler : IRequestHandler<GetInvoiceByIdQuery, Invoic
         var invoice = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Invoice), request.Id);
 
+        var amountPaid = invoice.Payments?.Where(p => !p.IsDeleted).Sum(p => p.Amount) ?? 0m;
         return new InvoiceDto
         {
             Id = invoice.Id,
@@ -30,6 +31,8 @@ public class GetInvoiceByIdHandler : IRequestHandler<GetInvoiceByIdQuery, Invoic
             DueDate = invoice.DueDate,
             Status = invoice.Status,
             Total = invoice.Total,
+            AmountPaid = amountPaid,
+            Balance = invoice.Total - amountPaid,
             Notes = invoice.Notes,
             Currency = invoice.Currency,
             Items = invoice.Items.Select(item => new InvoiceItemDto

@@ -22,6 +22,8 @@ export class StatusBadgeComponent {
     switch (this.status) {
       case InvoiceStatus.Paid:
         return "paid";
+      case InvoiceStatus.PartiallyPaid:
+        return "partial-paid";
       case InvoiceStatus.Pending:
         return "pending";
       case InvoiceStatus.Overdue:
