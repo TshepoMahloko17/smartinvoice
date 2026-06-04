@@ -50,7 +50,7 @@ import { Currency } from "../../../../shared/enums/currency.enum";
         (ngSubmit)="submit()"
         class="card p-6 space-y-5"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div class="form-row">
           <mat-form-field
             appearance="outline"
             class="col-span-2"
@@ -121,7 +121,7 @@ import { Currency } from "../../../../shared/enums/currency.enum";
             @for (item of itemsArray.controls; track $index) {
               <div
                 [formGroupName]="$index"
-                class="flex gap-2 items-start"
+                class="form-row items-start"
               >
                 <mat-form-field
                   appearance="outline"

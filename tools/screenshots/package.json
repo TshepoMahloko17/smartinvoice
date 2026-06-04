@@ -1,0 +1,11 @@
+{
+  "name": "smartinvoice-screenshots",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "capture": "node screenshot.js"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

@@ -44,11 +44,25 @@ docker compose up --build
 
 ---
 
-## 📸 Dashboard Preview
+## 🖼️ Screenshots: Dashboard, Invoices, Clients, Contracts, Payments
 
-![SmartInvoice Dashboard](screenshot-dashboard.png)
+![Dashboard](tools/screenshots/output/dashboard-desktop.png?v=20260604)
+![Invoices List](tools/screenshots/output/invoices-desktop.png?v=20260604)
+![New Invoice Form](tools/screenshots/output/invoice_new-desktop.png?v=20260604)
+![Clients](tools/screenshots/output/clients-desktop.png?v=20260604)
+![Contracts](tools/screenshots/output/contracts-desktop.png?v=20260604)
+![Payments](tools/screenshots/output/payments-desktop.png?v=20260604)
 
 ---
+
+## 🔁 Animated Demos
+
+Login flow, creating an invoice, downloading a PDF, and dashboard interactions:
+
+![Login Demo](tools/screenshots/gifs/login-20260604.gif)
+![Create Invoice Demo](tools/screenshots/gifs/create-invoice-20260604.gif)
+![Download PDF Demo](tools/screenshots/gifs/download-pdf-20260604.gif)
+![Dashboard Demo](tools/screenshots/gifs/dashboard-20260604.gif)
 
 ## 📌 Overview
 

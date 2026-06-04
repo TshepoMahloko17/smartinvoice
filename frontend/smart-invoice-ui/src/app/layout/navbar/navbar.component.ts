@@ -20,8 +20,18 @@ import { DashboardService } from "../../features/dashboard/services/dashboard.se
   imports: [MatIconModule, MatButtonModule, MatMenuModule],
   template: `
     <header
-      class="fixed top-0 left-64 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm flex justify-between items-center px-6 py-3"
+      class="fixed top-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm flex justify-between items-center px-6 py-3 md:left-64 left-0"
     >
+      <!-- Mobile hamburger -->
+      <button
+        class="md:hidden mr-3 p-2 text-slate-600 hover:text-primary bg-transparent border-0 outline-none cursor-pointer"
+        (click)="toggleSidebar()"
+        aria-label="Toggle sidebar"
+      >
+        <mat-icon style="font-size:24px; width:24px; height:24px;"
+          >menu</mat-icon
+        >
+      </button>
       <!-- Search -->
       <div class="flex-1 flex justify-center">
         <div class="relative w-full max-w-xl">
@@ -239,6 +249,100 @@ export class NavbarComponent implements OnInit {
     this.dashboardSvc
       .getStats()
       .subscribe((s) => this.pendingCount.set(s.pendingInvoicesCount));
+    // set initial header height CSS variable
+    this.updateHeaderHeight();
+  }
+
+  @HostListener("window:resize")
+  onWindowResize(): void {
+    this.updateHeaderHeight();
+  }
+
+  private updateHeaderHeight(): void {
+    try {
+      const header = document.querySelector("header") as HTMLElement | null;
+      if (!header) return;
+      const h = header.offsetHeight;
+      document.documentElement.style.setProperty(
+        "--si-header-height",
+        `${h}px`,
+      );
+    } catch (e) {
+      // ignore in non-DOM environments
+    }
+  }
+
+  // handler reference used to remove listener when sidebar closes
+  private _sidebarKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  toggleSidebar(): void {
+    try {
+      const opened = document.body.classList.toggle("sidebar-open");
+      const aside = document.querySelector(
+        "aside.sidebar",
+      ) as HTMLElement | null;
+      if (opened) {
+        // focus first link inside sidebar for accessibility
+        const first = aside?.querySelector("a, button") as HTMLElement | null;
+        first?.focus();
+
+        // install key handler to trap focus and handle Escape
+        this._sidebarKeyHandler = (e: KeyboardEvent) => {
+          if (e.key === "Escape") {
+            document.body.classList.remove("sidebar-open");
+            (document.activeElement as HTMLElement | null)?.blur();
+            this.removeSidebarKeyHandler();
+            return;
+          }
+          if (e.key === "Tab") {
+            // simple focus trap within aside
+            const focusable = aside
+              ? Array.from(
+                  aside.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+                  ),
+                ).filter((el) => !el.hasAttribute("disabled"))
+              : [];
+            if (focusable.length === 0) return;
+            const firstEl = focusable[0];
+            const lastEl = focusable[focusable.length - 1];
+            if (!e.shiftKey && document.activeElement === lastEl) {
+              e.preventDefault();
+              firstEl.focus();
+            } else if (e.shiftKey && document.activeElement === firstEl) {
+              e.preventDefault();
+              lastEl.focus();
+            }
+          }
+        };
+        document.addEventListener(
+          "keydown",
+          this._sidebarKeyHandler as EventListener,
+        );
+        // expose handler so other components (sidebar close) can remove it
+        try {
+          (window as any).__smartinvoice_sidebar_key_handler =
+            this._sidebarKeyHandler;
+        } catch {}
+      } else {
+        this.removeSidebarKeyHandler();
+      }
+    } catch (e) {
+      // ignore when running in environments without DOM
+    }
+  }
+
+  private removeSidebarKeyHandler(): void {
+    if (this._sidebarKeyHandler) {
+      document.removeEventListener(
+        "keydown",
+        this._sidebarKeyHandler as EventListener,
+      );
+      this._sidebarKeyHandler = null;
+      try {
+        delete (window as any).__smartinvoice_sidebar_key_handler;
+      } catch {}
+    }
   }
 
   toggleNotif(event: MouseEvent): void {

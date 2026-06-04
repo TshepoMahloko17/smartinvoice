@@ -168,95 +168,133 @@ import {
           </div>
         </div>
 
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-gray-100">
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Invoice ID
-              </th>
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Client
-              </th>
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Date
-              </th>
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Due Date
-              </th>
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Amount
-              </th>
-              <th
-                class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-              >
-                Status
-              </th>
-              <th class="pb-3 w-8"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (inv of recentInvoices(); track inv.id) {
-              <tr
-                class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors"
-              >
-                <td class="py-3 pr-4">
-                  <a
-                    [routerLink]="['/invoices', inv.id]"
-                    class="text-blue-600 font-medium hover:underline"
-                  >
-                    #{{ inv.invoiceNumber }}
-                  </a>
-                </td>
-                <td class="py-3 pr-4">
-                  <p class="font-medium text-gray-900">{{ inv.clientName }}</p>
-                  <p class="text-xs text-gray-400">{{ inv.clientEmail }}</p>
-                </td>
-                <td class="py-3 pr-4 text-gray-500">
-                  {{ inv.issuedDate | date: "d MMM yyyy" }}
-                </td>
-                <td class="py-3 pr-4 text-gray-500">
-                  {{ inv.dueDate | date: "d MMM yyyy" }}
-                </td>
-                <td class="py-3 pr-4 font-semibold text-gray-900">
-                  {{ inv.total | currency: "ZAR" : "R" }}
-                </td>
-                <td class="py-3 pr-4">
-                  <app-status-badge [status]="inv.status" />
-                </td>
-                <td class="py-3">
-                  <button
-                    mat-icon-button
-                    class="text-gray-400"
-                    [matMenuTriggerFor]="rowMenu"
-                    [matMenuTriggerData]="{ inv: inv }"
-                    aria-label="Invoice actions"
-                  >
-                    <mat-icon style="font-size:18px;">more_vert</mat-icon>
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td
-                  colspan="7"
-                  class="py-10 text-center text-gray-400 text-sm"
+        <!-- Mobile stacked list -->
+        <div class="md:hidden p-3 space-y-3">
+          @for (inv of recentInvoices(); track inv.id) {
+            <div
+              class="bg-white p-3 rounded-lg shadow flex items-start justify-between"
+            >
+              <div class="min-w-0">
+                <a
+                  [routerLink]="['/invoices', inv.id]"
+                  class="text-[#0052cb] font-medium truncate"
+                  >#{{ inv.invoiceNumber }}</a
                 >
-                  No invoices yet.
-                </td>
+                <div class="text-sm text-gray-500 truncate">
+                  {{ inv.clientName }}
+                </div>
+                <div class="text-xs text-gray-400">
+                  {{ inv.issuedDate | date: "d MMM yyyy" }} · Due
+                  {{ inv.dueDate | date: "d MMM yyyy" }}
+                </div>
+              </div>
+              <div class="ml-3 text-right flex-shrink-0">
+                <div class="font-semibold">
+                  {{ inv.total | currency: "ZAR" : "R" }}
+                </div>
+                <div class="mt-1">
+                  <app-status-badge [status]="inv.status" />
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="py-6 text-center text-gray-400">No invoices yet.</div>
+          }
+        </div>
+
+        <div class="table-responsive hidden md:block">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Invoice ID
+                </th>
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Client
+                </th>
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Date
+                </th>
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Due Date
+                </th>
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Amount
+                </th>
+                <th
+                  class="text-left pb-3 pr-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
+                >
+                  Status
+                </th>
+                <th class="pb-3 w-8"></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (inv of recentInvoices(); track inv.id) {
+                <tr
+                  class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors"
+                >
+                  <td class="py-3 pr-4">
+                    <a
+                      [routerLink]="['/invoices', inv.id]"
+                      class="text-blue-600 font-medium hover:underline"
+                    >
+                      #{{ inv.invoiceNumber }}
+                    </a>
+                  </td>
+                  <td class="py-3 pr-4">
+                    <p class="font-medium text-gray-900">
+                      {{ inv.clientName }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ inv.clientEmail }}</p>
+                  </td>
+                  <td class="py-3 pr-4 text-gray-500">
+                    {{ inv.issuedDate | date: "d MMM yyyy" }}
+                  </td>
+                  <td class="py-3 pr-4 text-gray-500">
+                    {{ inv.dueDate | date: "d MMM yyyy" }}
+                  </td>
+                  <td class="py-3 pr-4 font-semibold text-gray-900">
+                    {{ inv.total | currency: "ZAR" : "R" }}
+                  </td>
+                  <td class="py-3 pr-4">
+                    <app-status-badge [status]="inv.status" />
+                  </td>
+                  <td class="py-3">
+                    <button
+                      mat-icon-button
+                      class="text-gray-400"
+                      [matMenuTriggerFor]="rowMenu"
+                      [matMenuTriggerData]="{ inv: inv }"
+                      aria-label="Invoice actions"
+                    >
+                      <mat-icon style="font-size:18px;">more_vert</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td
+                    colspan="7"
+                    class="py-10 text-center text-gray-400 text-sm"
+                  >
+                    No invoices yet.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
 
         <div
           class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500"
