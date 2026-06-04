@@ -60,9 +60,9 @@ docker compose up --build
 Login flow, creating an invoice, downloading a PDF, and dashboard interactions:
 
 ![Login Demo](tools/screenshots/gifs/login-20260604.gif)
-![Create Invoice Demo](tools/screenshots/gifs/create-invoice-20260604.gif)
-![Download PDF Demo](tools/screenshots/gifs/download-pdf-20260604.gif)
-![Dashboard Demo](tools/screenshots/gifs/dashboard-20260604.gif)
+![Create Invoice Demo](tools/screenshots/gifs/create-invoice-20260604b.gif)
+![Download PDF Demo](tools/screenshots/gifs/download-pdf-20260604b.gif)
+![Dashboard Demo](tools/screenshots/gifs/dashboard-20260604b.gif)
 
 ## 📌 Overview
 
