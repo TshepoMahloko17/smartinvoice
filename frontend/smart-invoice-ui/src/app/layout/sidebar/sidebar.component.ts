@@ -43,6 +43,7 @@ interface NavItem {
           <a
             [routerLink]="item.route"
             routerLinkActive="active-nav"
+            (click)="close()"
             class="nav-item flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"
           >
             <mat-icon style="font-size:20px; width:20px; height:20px;">{{
@@ -58,6 +59,7 @@ interface NavItem {
         <a
           routerLink="/settings"
           routerLinkActive="active-nav"
+          (click)="close()"
           class="nav-item flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"
         >
           <mat-icon style="font-size:20px; width:20px; height:20px;"

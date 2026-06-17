@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, NavigationEnd } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatMenuModule } from "@angular/material/menu";
@@ -251,6 +251,17 @@ export class NavbarComponent implements OnInit {
       .subscribe((s) => this.pendingCount.set(s.pendingInvoicesCount));
     // set initial header height CSS variable
     this.updateHeaderHeight();
+
+    // close sidebar on successful navigation (ensures mobile sidebar always closes)
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationEnd) {
+        try {
+          document.body.classList.remove("sidebar-open");
+          (document.activeElement as HTMLElement | null)?.blur();
+        } catch {}
+        this.removeSidebarKeyHandler();
+      }
+    });
   }
 
   @HostListener("window:resize")
