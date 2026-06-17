@@ -38,55 +38,87 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
       </div>
 
       <div class="card overflow-hidden">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b text-gray-500 text-xs uppercase tracking-wide">
-              <th class="px-4 py-3 text-left">Invoice</th>
-              <th class="px-4 py-3 text-right">Amount</th>
-              <th class="px-4 py-3 text-left">Method</th>
-              <th class="px-4 py-3 text-left">Reference</th>
-              <th class="px-4 py-3 text-left">Date</th>
-              <th class="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (p of result()?.items; track p.id) {
-              <tr class="border-b border-gray-50 hover:bg-gray-50">
-                <td class="px-4 py-3 font-medium text-[#0052cb]">
+        <!-- Mobile cards -->
+        <div class="md:hidden p-3 space-y-3">
+          @for (p of result()?.items; track p.id) {
+            <div
+              class="bg-white p-3 rounded-lg shadow flex items-start justify-between"
+            >
+              <div class="min-w-0">
+                <div class="font-medium text-gray-900">
                   {{ p.invoiceNumber }}
-                </td>
-                <td class="px-4 py-3 text-right font-semibold">
-                  {{ p.amount | currency: "ZAR" : "R" }}
-                </td>
-                <td class="px-4 py-3 text-gray-500">{{ p.method ?? "—" }}</td>
-                <td class="px-4 py-3 text-gray-500">
-                  {{ p.reference ?? "—" }}
-                </td>
-                <td class="px-4 py-3 text-gray-500">
+                </div>
+                <div class="text-sm text-gray-500">
+                  {{ p.method ?? "—" }} · {{ p.reference ?? "—" }}
+                </div>
+                <div class="text-xs text-gray-400">
                   {{ p.paidOn | date: "mediumDate" }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <button
-                    mat-icon-button
-                    (click)="delete(p.id)"
-                    aria-label="Delete payment"
+                </div>
+              </div>
+              <div class="ml-3 text-right flex-shrink-0 font-semibold">
+                {{ p.amount | currency: "ZAR" : "R" }}
+              </div>
+            </div>
+          } @empty {
+            <div class="py-6 text-center text-gray-400">
+              No payments recorded.
+            </div>
+          }
+        </div>
+
+        <div class="table-responsive hidden md:block">
+          <table class="w-full text-sm">
+            <thead>
+              <tr
+                class="border-b text-gray-500 text-xs uppercase tracking-wide"
+              >
+                <th class="px-4 py-3 text-left">Invoice</th>
+                <th class="px-4 py-3 text-right">Amount</th>
+                <th class="px-4 py-3 text-left">Method</th>
+                <th class="px-4 py-3 text-left">Reference</th>
+                <th class="px-4 py-3 text-left">Date</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of result()?.items; track p.id) {
+                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                  <td class="px-4 py-3 font-medium text-[#0052cb]">
+                    {{ p.invoiceNumber }}
+                  </td>
+                  <td class="px-4 py-3 text-right font-semibold">
+                    {{ p.amount | currency: "ZAR" : "R" }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500">{{ p.method ?? "—" }}</td>
+                  <td class="px-4 py-3 text-gray-500">
+                    {{ p.reference ?? "—" }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500">
+                    {{ p.paidOn | date: "mediumDate" }}
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      mat-icon-button
+                      (click)="delete(p.id)"
+                      aria-label="Delete payment"
+                    >
+                      <mat-icon class="text-red-400">delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td
+                    colspan="6"
+                    class="px-4 py-8 text-center text-gray-400"
                   >
-                    <mat-icon class="text-red-400">delete</mat-icon>
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td
-                  colspan="6"
-                  class="px-4 py-8 text-center text-gray-400"
-                >
-                  No payments recorded.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+                    No payments recorded.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `,

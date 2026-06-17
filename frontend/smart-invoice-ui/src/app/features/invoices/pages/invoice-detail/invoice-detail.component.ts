@@ -116,43 +116,60 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
           </div>
 
           <!-- Items -->
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b text-gray-500 text-xs uppercase">
-                <th class="py-2 text-left">Description</th>
-                <th class="py-2 text-right">Qty</th>
-                <th class="py-2 text-right">Unit Price</th>
-                <th class="py-2 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of invoice.items; track item.id) {
-                <tr class="border-b border-gray-50">
-                  <td class="py-2">{{ item.description }}</td>
-                  <td class="py-2 text-right">{{ item.quantity }}</td>
-                  <td class="py-2 text-right">
-                    {{ item.unitPrice | currency: "ZAR" : "R" }}
+          <div class="md:hidden p-3 space-y-3">
+            @for (item of invoice.items; track item.id) {
+              <div class="bg-white p-3 rounded-lg shadow">
+                <div class="font-medium truncate">{{ item.description }}</div>
+                <div class="text-sm text-gray-500">
+                  Qty: {{ item.quantity }} ·
+                  {{ item.unitPrice | currency: "ZAR" : "R" }}
+                </div>
+                <div class="text-right font-semibold mt-2">
+                  {{ item.lineTotal | currency: "ZAR" : "R" }}
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="table-responsive hidden md:block">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b text-gray-500 text-xs uppercase">
+                  <th class="py-2 text-left">Description</th>
+                  <th class="py-2 text-right">Qty</th>
+                  <th class="py-2 text-right">Unit Price</th>
+                  <th class="py-2 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of invoice.items; track item.id) {
+                  <tr class="border-b border-gray-50">
+                    <td class="py-2">{{ item.description }}</td>
+                    <td class="py-2 text-right">{{ item.quantity }}</td>
+                    <td class="py-2 text-right">
+                      {{ item.unitPrice | currency: "ZAR" : "R" }}
+                    </td>
+                    <td class="py-2 text-right font-medium">
+                      {{ item.lineTotal | currency: "ZAR" : "R" }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td
+                    colspan="3"
+                    class="pt-4 text-right font-semibold"
+                  >
+                    Total
                   </td>
-                  <td class="py-2 text-right font-medium">
-                    {{ item.lineTotal | currency: "ZAR" : "R" }}
+                  <td class="pt-4 text-right text-lg font-bold text-[#0052cb]">
+                    {{ invoice.total | currency: "ZAR" : "R" }}
                   </td>
                 </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr>
-                <td
-                  colspan="3"
-                  class="pt-4 text-right font-semibold"
-                >
-                  Total
-                </td>
-                <td class="pt-4 text-right text-lg font-bold text-[#0052cb]">
-                  {{ invoice.total | currency: "ZAR" : "R" }}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
 
           @if (invoice.notes) {
             <div>
@@ -182,73 +199,95 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
           @if (payments.length === 0) {
             <p class="text-sm text-gray-400 py-2">No payments recorded yet.</p>
           } @else {
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b text-gray-500 text-xs uppercase">
-                  <th class="py-2 text-left">Date</th>
-                  <th class="py-2 text-left">Method</th>
-                  <th class="py-2 text-left">Reference</th>
-                  <th class="py-2 text-right">Amount</th>
-                  <th class="py-2 text-right"></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (payment of payments; track payment.id) {
-                  <tr class="border-b border-gray-50">
-                    <td class="py-2">
+            <div class="md:hidden p-3 space-y-3">
+              @for (payment of payments; track payment.id) {
+                <div
+                  class="bg-white p-3 rounded-lg shadow flex items-start justify-between"
+                >
+                  <div>
+                    <div class="font-medium">
                       {{ payment.paidOn | date: "mediumDate" }}
-                    </td>
-                    <td class="py-2 text-gray-600">
-                      {{ payment.method || "—" }}
-                    </td>
-                    <td class="py-2 text-gray-600">
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      {{ payment.method || "—" }} ·
                       {{ payment.reference || "—" }}
-                    </td>
-                    <td class="py-2 text-right font-medium text-[#0052cb]">
-                      {{ payment.amount | currency: "ZAR" : "R" }}
-                    </td>
-                    <td class="py-2 text-right">
-                      <button
-                        mat-icon-button
-                        class="text-red-400"
-                        aria-label="Delete payment"
-                        (click)="deletePayment(payment)"
-                      >
-                        <mat-icon>delete_outline</mat-icon>
-                      </button>
-                    </td>
+                    </div>
+                  </div>
+                  <div class="text-right font-semibold text-[#0052cb]">
+                    {{ payment.amount | currency: "ZAR" : "R" }}
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="table-responsive hidden md:block">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b text-gray-500 text-xs uppercase">
+                    <th class="py-2 text-left">Date</th>
+                    <th class="py-2 text-left">Method</th>
+                    <th class="py-2 text-left">Reference</th>
+                    <th class="py-2 text-right">Amount</th>
+                    <th class="py-2 text-right"></th>
                   </tr>
-                }
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td
-                    colspan="3"
-                    class="pt-3 text-right text-xs text-gray-500 uppercase"
-                  >
-                    Total Paid
-                  </td>
-                  <td class="pt-3 text-right font-semibold text-green-600">
-                    {{ totalPaid | currency: "ZAR" : "R" }}
-                  </td>
-                  <td></td>
-                </tr>
-                @if (invoice.balance > 0) {
+                </thead>
+                <tbody>
+                  @for (payment of payments; track payment.id) {
+                    <tr class="border-b border-gray-50">
+                      <td class="py-2">
+                        {{ payment.paidOn | date: "mediumDate" }}
+                      </td>
+                      <td class="py-2 text-gray-600">
+                        {{ payment.method || "—" }}
+                      </td>
+                      <td class="py-2 text-gray-600">
+                        {{ payment.reference || "—" }}
+                      </td>
+                      <td class="py-2 text-right font-medium text-[#0052cb]">
+                        {{ payment.amount | currency: "ZAR" : "R" }}
+                      </td>
+                      <td class="py-2 text-right">
+                        <button
+                          mat-icon-button
+                          class="text-red-400"
+                          aria-label="Delete payment"
+                          (click)="deletePayment(payment)"
+                        >
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
                   <tr>
                     <td
                       colspan="3"
-                      class="pt-1 text-right text-xs text-gray-500 uppercase"
+                      class="pt-3 text-right text-xs text-gray-500 uppercase"
                     >
-                      Balance Due
+                      Total Paid
                     </td>
-                    <td class="pt-1 text-right font-semibold text-orange-600">
-                      {{ invoice.balance | currency: "ZAR" : "R" }}
+                    <td class="pt-3 text-right font-semibold text-green-600">
+                      {{ totalPaid | currency: "ZAR" : "R" }}
                     </td>
                     <td></td>
                   </tr>
-                }
-              </tfoot>
-            </table>
+                  @if (invoice.balance > 0) {
+                    <tr>
+                      <td
+                        colspan="3"
+                        class="pt-1 text-right text-xs text-gray-500 uppercase"
+                      >
+                        Balance Due
+                      </td>
+                      <td class="pt-1 text-right font-semibold text-orange-600">
+                        {{ invoice.balance | currency: "ZAR" : "R" }}
+                      </td>
+                      <td></td>
+                    </tr>
+                  }
+                </tfoot>
+              </table>
+            </div>
           }
         </div>
       </div>

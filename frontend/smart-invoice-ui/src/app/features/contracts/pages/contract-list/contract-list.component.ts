@@ -32,55 +32,94 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
       </div>
 
       <div class="card overflow-hidden">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b text-gray-500 text-xs uppercase tracking-wide">
-              <th class="px-4 py-3 text-left">Title</th>
-              <th class="px-4 py-3 text-left">Client</th>
-              <th class="px-4 py-3 text-left">Start Date</th>
-              <th class="px-4 py-3 text-center">Signed</th>
-              <th class="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (c of result()?.items; track c.id) {
-              <tr class="border-b border-gray-50 hover:bg-gray-50">
-                <td class="px-4 py-3 font-medium text-gray-900">
+        <!-- Mobile cards -->
+        <div class="md:hidden p-3 space-y-3">
+          @for (c of result()?.items; track c.id) {
+            <div
+              class="bg-white p-3 rounded-lg shadow flex items-start justify-between"
+            >
+              <div class="min-w-0">
+                <div class="font-medium text-gray-900 truncate">
                   {{ c.title }}
-                </td>
-                <td class="px-4 py-3 text-gray-500">{{ c.clientName }}</td>
-                <td class="px-4 py-3 text-gray-500">
+                </div>
+                <div class="text-sm text-gray-500 truncate">
+                  {{ c.clientName }}
+                </div>
+                <div class="text-xs text-gray-400">
                   {{ c.startDate | date: "mediumDate" }}
-                </td>
-                <td class="px-4 py-3 text-center">
-                  <mat-icon
-                    [class]="c.isSigned ? 'text-green-500' : 'text-gray-300'"
-                  >
-                    {{ c.isSigned ? "check_circle" : "radio_button_unchecked" }}
-                  </mat-icon>
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <button
-                    mat-icon-button
-                    (click)="delete(c.id)"
-                    aria-label="Delete contract"
-                  >
-                    <mat-icon class="text-red-400">delete</mat-icon>
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td
-                  colspan="5"
-                  class="px-4 py-8 text-center text-gray-400"
+                </div>
+              </div>
+              <div class="ml-3 flex-shrink-0">
+                <mat-icon
+                  [class]="c.isSigned ? 'text-green-500' : 'text-gray-300'"
+                  >{{
+                    c.isSigned ? "check_circle" : "radio_button_unchecked"
+                  }}</mat-icon
                 >
-                  No contracts found.
-                </td>
+              </div>
+            </div>
+          } @empty {
+            <div class="py-6 text-center text-gray-400">
+              No contracts found.
+            </div>
+          }
+        </div>
+
+        <div class="table-responsive hidden md:block">
+          <table class="w-full text-sm">
+            <thead>
+              <tr
+                class="border-b text-gray-500 text-xs uppercase tracking-wide"
+              >
+                <th class="px-4 py-3 text-left">Title</th>
+                <th class="px-4 py-3 text-left">Client</th>
+                <th class="px-4 py-3 text-left">Start Date</th>
+                <th class="px-4 py-3 text-center">Signed</th>
+                <th class="px-4 py-3"></th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (c of result()?.items; track c.id) {
+                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                  <td class="px-4 py-3 font-medium text-gray-900">
+                    {{ c.title }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500">{{ c.clientName }}</td>
+                  <td class="px-4 py-3 text-gray-500">
+                    {{ c.startDate | date: "mediumDate" }}
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <mat-icon
+                      [class]="c.isSigned ? 'text-green-500' : 'text-gray-300'"
+                    >
+                      {{
+                        c.isSigned ? "check_circle" : "radio_button_unchecked"
+                      }}
+                    </mat-icon>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      mat-icon-button
+                      (click)="delete(c.id)"
+                      aria-label="Delete contract"
+                    >
+                      <mat-icon class="text-red-400">delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td
+                    colspan="5"
+                    class="px-4 py-8 text-center text-gray-400"
+                  >
+                    No contracts found.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `,

@@ -17,9 +17,12 @@ import { LoadingService } from "../../core/services/loading.service";
   template: `
     <div class="min-h-screen">
       <app-sidebar />
-      <div class="ml-64 min-h-screen flex flex-col">
+      <div class="md:ml-64 ml-0 min-h-screen flex flex-col">
         <app-navbar />
-        <main class="p-8 pt-20">
+        <main
+          class="p-4 md:p-8"
+          style="padding-top: calc(var(--si-header-height, 120px) + 16px);"
+        >
           <router-outlet />
         </main>
       </div>

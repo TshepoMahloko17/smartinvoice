@@ -68,7 +68,7 @@ import { Client } from "../../../../shared/models/client.model";
           }
         </mat-form-field>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="form-row">
           <mat-form-field class="w-full">
             <mat-label>Start Date</mat-label>
             <input

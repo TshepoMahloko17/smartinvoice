@@ -15,16 +15,26 @@ interface NavItem {
   imports: [RouterLink, RouterLinkActive, MatIconModule],
   template: `
     <aside
-      class="fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 shadow-lg flex flex-col overflow-y-auto z-50"
+      class="sidebar fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 shadow-lg flex flex-col overflow-y-auto z-50 transform transition-transform duration-200 ease-in-out -translate-x-full md:translate-x-0"
     >
       <!-- Logo -->
-      <div class="px-6 pt-6 pb-8">
+      <div class="px-6 pt-6 pb-8 relative">
         <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">
           SmartInvoice
         </h1>
         <p class="text-[10px] font-bold text-slate-500 tracking-widest mt-1">
           ENTERPRISE FINANCE
         </p>
+        <!-- Mobile close button -->
+        <button
+          class="md:hidden absolute top-3 right-3 p-2 text-slate-600 hover:text-primary bg-transparent border-0 outline-none cursor-pointer"
+          (click)="close()"
+          aria-label="Close sidebar"
+        >
+          <mat-icon style="font-size:20px; width:20px; height:20px;"
+            >close</mat-icon
+          >
+        </button>
       </div>
 
       <!-- Nav items -->
@@ -135,4 +145,22 @@ export class SidebarComponent {
     if (!u) return "U";
     return `${u.firstName?.[0] ?? ""}${u.lastName?.[0] ?? ""}`.toUpperCase();
   });
+
+  close(): void {
+    try {
+      document.body.classList.remove("sidebar-open");
+      // remove global key handler if present
+      try {
+        const h = (window as any).__smartinvoice_sidebar_key_handler as
+          | EventListener
+          | undefined;
+        if (h) document.removeEventListener("keydown", h);
+        try {
+          delete (window as any).__smartinvoice_sidebar_key_handler;
+        } catch {}
+      } catch {}
+    } catch (e) {
+      // ignore
+    }
+  }
 }

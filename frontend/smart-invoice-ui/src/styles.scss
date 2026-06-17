@@ -319,3 +319,59 @@ html, body {
 .snackbar-error .mat-mdc-snack-bar-action {
   color: #fecaca !important;
 }
+
+/* Responsive / mobile helpers */
+
+/* Sidebar overlay behavior on small screens */
+aside.sidebar {
+  /* hidden by default on small screens */
+  transform: translateX(-100%);
+}
+
+body.sidebar-open aside.sidebar {
+  transform: translateX(0) !important;
+  z-index: 90;
+}
+
+@media (min-width: 768px) {
+  aside.sidebar {
+    transform: none !important;
+  }
+  .md\:ml-64 { margin-left: 16rem; }
+}
+
+/* When sidebar is open on mobile, prevent body scroll */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Backdrop when sidebar is open on mobile */
+body.sidebar-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 40;
+}
+
+/* Make sure header and main respond when sidebar hidden */
+/* legacy sm helper replaced by md */
+.sm\:ml-64 { }
+
+/* Tables: allow horizontal scroll on small screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Form rows: stack on small screens */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row { flex-direction: column; }
+}
+
