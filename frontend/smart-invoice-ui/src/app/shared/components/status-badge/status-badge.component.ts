@@ -7,13 +7,7 @@ import { StatusLabelPipe } from "../../pipes/status-label.pipe";
   selector: "app-status-badge",
   standalone: true,
   imports: [CommonModule, StatusLabelPipe],
-  template: `
-    <span
-      class="status-pill"
-      [ngClass]="cssClass"
-      >{{ status | statusLabel }}</span
-    >
-  `,
+  templateUrl: './status-badge.component.html',
 })
 export class StatusBadgeComponent {
   @Input() status!: InvoiceStatus;

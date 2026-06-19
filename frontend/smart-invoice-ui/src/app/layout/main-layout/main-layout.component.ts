@@ -14,21 +14,7 @@ import { LoadingService } from "../../core/services/loading.service";
     NavbarComponent,
     LoadingSpinnerComponent,
   ],
-  template: `
-    <div class="min-h-screen">
-      <app-sidebar />
-      <div class="md:ml-64 ml-0 min-h-screen flex flex-col">
-        <app-navbar />
-        <main
-          class="p-4 md:p-8"
-          style="padding-top: calc(var(--si-header-height, 120px) + 16px);"
-        >
-          <router-outlet />
-        </main>
-      </div>
-    </div>
-    <app-loading-spinner [visible]="loading.loading()" />
-  `,
+  templateUrl: './main-layout.component.html',
 })
 export class MainLayoutComponent {
   readonly loading = inject(LoadingService);

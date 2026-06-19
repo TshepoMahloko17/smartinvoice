@@ -6,18 +6,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-loading-spinner",
   standalone: true,
   imports: [CommonModule, MatProgressSpinnerModule],
-  template: `
-    @if (visible) {
-      <div
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20"
-      >
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="48"
-        />
-      </div>
-    }
-  `,
+  templateUrl: './loading-spinner.component.html',
 })
 export class LoadingSpinnerComponent {
   @Input() visible = false;
