@@ -7,6 +7,7 @@ namespace SmartInvoice.API.Middleware;
 
 public class ExceptionMiddleware
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
 
@@ -67,7 +68,7 @@ public class ExceptionMiddleware
             CorrelationId: correlationId,
             Errors: errors);
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response, JsonOptions));
     }
 }
 
