@@ -1,0 +1,105 @@
+<div class="max-w-2xl mx-auto space-y-5">
+      <div class="flex items-center gap-3">
+        <a
+          mat-button
+          routerLink="/contracts"
+          ><mat-icon>arrow_back</mat-icon></a
+        >
+        <h2 class="text-xl font-semibold text-gray-900">New Contract</h2>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        class="card p-6 space-y-5"
+      >
+        <mat-form-field class="w-full">
+          <mat-label>Title</mat-label>
+          <input
+            matInput
+            formControlName="title"
+            placeholder="e.g. Web Development Agreement"
+          />
+          @if (form.get("title")?.invalid && form.get("title")?.touched) {
+            <mat-error>Title is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Client</mat-label>
+          <mat-select formControlName="clientId">
+            @for (c of clients; track c.id) {
+              <mat-option [value]="c.id">{{ c.name }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get("clientId")?.invalid && form.get("clientId")?.touched) {
+            <mat-error>Client is required</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field class="w-full">
+            <mat-label>Start Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="startPicker"
+              formControlName="startDate"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="startPicker"
+            />
+            <mat-datepicker #startPicker />
+            @if (
+              form.get("startDate")?.invalid && form.get("startDate")?.touched
+            ) {
+              <mat-error>Start date is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>End Date (optional)</mat-label>
+            <input
+              matInput
+              [matDatepicker]="endPicker"
+              formControlName="endDate"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="endPicker"
+            />
+            <mat-datepicker #endPicker />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="w-full">
+          <mat-label>Content / Terms</mat-label>
+          <textarea
+            matInput
+            formControlName="content"
+            rows="6"
+            placeholder="Enter contract terms and conditions..."
+          ></textarea>
+          @if (form.get("content")?.invalid && form.get("content")?.touched) {
+            <mat-error>Content is required</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <a
+            mat-button
+            routerLink="/contracts"
+            >Cancel</a
+          >
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || saving"
+          >
+            {{ saving ? "Creating..." : "Create Contract" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  
