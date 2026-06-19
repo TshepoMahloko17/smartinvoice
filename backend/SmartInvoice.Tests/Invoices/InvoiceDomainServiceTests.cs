@@ -44,6 +44,7 @@ public class InvoiceDomainServiceTests
             Guid.NewGuid(),
             DateTime.UtcNow,
             DateTime.UtcNow.AddDays(30));
+        invoice.AddItem(new InvoiceItem { Description = "Dev", Quantity = 1, UnitPrice = 1000m, InvoiceId = invoice.Id });
 
         _service.ApplyPaymentStatus(invoice, 0m);
 

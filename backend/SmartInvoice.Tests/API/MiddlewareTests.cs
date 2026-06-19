@@ -41,8 +41,8 @@ public class MiddlewareTests
         stream.Position = 0;
         var body = await new StreamReader(stream, Encoding.UTF8).ReadToEndAsync();
 
-        Assert.Contains("\"code\":\"validation_failed\"", body);
-        Assert.Contains("\"correlationId\":\"corr-xyz\"", body);
+        Assert.Contains("\"Code\":\"validation_failed\"", body);
+        Assert.Contains("\"CorrelationId\":\"corr-xyz\"", body);
         Assert.Contains("\"Email\"", body);
     }
 }
