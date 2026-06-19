@@ -2,6 +2,8 @@ using Moq;
 using SmartInvoice.Application.Common.Exceptions;
 using SmartInvoice.Application.DTOs;
 using SmartInvoice.Application.Features.Payments;
+using SmartInvoice.Application.Interfaces;
+using SmartInvoice.Application.Services;
 using SmartInvoice.Domain.Entities;
 using SmartInvoice.Domain.Interfaces;
 
@@ -69,9 +71,10 @@ public class RecordPaymentHandlerTests
     private readonly Mock<IRepository<Payment>> _paymentRepo = new();
     private readonly Mock<IRepository<Invoice>> _invoiceRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly IInvoiceDomainService _invoiceDomainService = new InvoiceDomainService();
 
     private RecordPaymentHandler CreateHandler() =>
-        new(_paymentRepo.Object, _invoiceRepo.Object, _uow.Object);
+        new(_paymentRepo.Object, _invoiceRepo.Object, _uow.Object, _invoiceDomainService);
 
     [Fact]
     public async Task Handle_ValidCommand_ReturnsPaymentDto()
@@ -256,8 +259,9 @@ public class DeletePaymentHandlerTests
     private readonly Mock<IRepository<Payment>> _repo = new();
     private readonly Mock<IRepository<Invoice>> _invoiceRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly IInvoiceDomainService _invoiceDomainService = new InvoiceDomainService();
 
-    private DeletePaymentHandler CreateHandler() => new(_repo.Object, _invoiceRepo.Object, _uow.Object);
+    private DeletePaymentHandler CreateHandler() => new(_repo.Object, _invoiceRepo.Object, _uow.Object, _invoiceDomainService);
 
     [Fact]
     public async Task Handle_ExistingPayment_SoftDeletes()

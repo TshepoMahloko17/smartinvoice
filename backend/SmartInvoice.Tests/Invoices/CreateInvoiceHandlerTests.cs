@@ -2,6 +2,8 @@ using Moq;
 using SmartInvoice.Application.Common.Exceptions;
 using SmartInvoice.Application.DTOs;
 using SmartInvoice.Application.Features.Invoices.Commands.CreateInvoice;
+using SmartInvoice.Application.Interfaces;
+using SmartInvoice.Application.Services;
 using SmartInvoice.Domain.Entities;
 using SmartInvoice.Domain.Enums;
 using SmartInvoice.Domain.Interfaces;
@@ -13,9 +15,10 @@ public class CreateInvoiceHandlerTests
     private readonly Mock<IRepository<Invoice>> _invoiceRepo = new();
     private readonly Mock<IRepository<Client>> _clientRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly IInvoiceDomainService _invoiceDomainService = new InvoiceDomainService();
 
     private CreateInvoiceHandler CreateHandler() =>
-        new(_invoiceRepo.Object, _clientRepo.Object, _uow.Object);
+        new(_invoiceRepo.Object, _clientRepo.Object, _uow.Object, _invoiceDomainService);
 
     private static Client MakeClient(Guid? id = null) => new()
     {

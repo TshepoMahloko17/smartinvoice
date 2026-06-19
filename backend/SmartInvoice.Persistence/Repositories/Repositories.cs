@@ -21,7 +21,12 @@ public class InvoiceRepository : GenericRepository<Invoice>
         Expression<Func<Invoice, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Invoices.Include(i => i.Client).Include(i => i.Payments).AsQueryable();
+        var query = _context.Invoices
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(i => i.Client)
+            .Include(i => i.Payments)
+            .AsQueryable();
         if (predicate is not null) query = query.Where(predicate);
         var total = await query.CountAsync(cancellationToken);
         var items = await query
@@ -50,6 +55,26 @@ public class ContractRepository : GenericRepository<Contract>
         await _context.Contracts
             .Include(c => c.Client)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+    public override async Task<(IEnumerable<Contract> Items, int TotalCount)> GetPagedAsync(
+        int pageNumber, int pageSize,
+        Expression<Func<Contract, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Contracts
+            .AsNoTracking()
+            .Include(c => c.Client)
+            .AsQueryable();
+
+        if (predicate is not null) query = query.Where(predicate);
+
+        var total = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
 }
 
 public class PaymentRepository : GenericRepository<Payment>
@@ -60,4 +85,24 @@ public class PaymentRepository : GenericRepository<Payment>
         await _context.Payments
             .Include(p => p.Invoice)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+    public override async Task<(IEnumerable<Payment> Items, int TotalCount)> GetPagedAsync(
+        int pageNumber, int pageSize,
+        Expression<Func<Payment, bool>>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Payments
+            .AsNoTracking()
+            .Include(p => p.Invoice)
+            .AsQueryable();
+
+        if (predicate is not null) query = query.Where(predicate);
+
+        var total = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
 }

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartInvoice.API.Contracts.Requests;
 using SmartInvoice.Application.Features.Payments;
 using SmartInvoice.Application.Interfaces;
 
@@ -45,7 +46,3 @@ public class PaymentsController : ControllerBase
         return NoContent();
     }
 }
-
-public record RecordPaymentRequest(
-    Guid InvoiceId, decimal Amount, DateTime PaidOn,
-    string? Method, string? Reference);

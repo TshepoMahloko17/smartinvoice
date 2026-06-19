@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartInvoice.API.Contracts.Requests;
 using SmartInvoice.Application.DTOs;
 using SmartInvoice.Application.Features.Invoices.Commands.CreateInvoice;
 using SmartInvoice.Application.Features.Invoices.Commands.DeleteInvoice;
@@ -64,7 +65,7 @@ public class InvoicesController : ControllerBase
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
-        Guid id, [FromBody] UpdateInvoiceBodyRequest request, CancellationToken ct)
+        Guid id, [FromBody] UpdateInvoiceRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new UpdateInvoiceCommand(
             id,
@@ -99,21 +100,3 @@ public class InvoicesController : ControllerBase
         return File(pdf, "application/pdf", $"invoice-{id}.pdf");
     }
 }
-
-public record CreateInvoiceRequest(
-    Guid ClientId,
-    DateTime IssuedDate,
-    DateTime DueDate,
-    Currency Currency,
-    string? Notes,
-    List<CreateInvoiceItemRequest> Items);
-
-public record UpdateStatusRequest(InvoiceStatus Status);
-
-public record UpdateInvoiceBodyRequest(
-    Guid ClientId,
-    DateTime IssuedDate,
-    DateTime DueDate,
-    Currency Currency,
-    string? Notes,
-    List<CreateInvoiceItemRequest> Items);

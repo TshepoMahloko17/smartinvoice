@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\SmartInvoice.Application\SmartInvoice.Application.csproj" />
     <ProjectReference Include="..\SmartInvoice.Domain\SmartInvoice.Domain.csproj" />
+    <ProjectReference Include="..\SmartInvoice.API\SmartInvoice.API.csproj" />
+    <ProjectReference Include="..\SmartInvoice.Infrastructure\SmartInvoice.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

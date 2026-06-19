@@ -20,18 +20,18 @@ public class GenericRepository<T> : IRepository<T> where T : class
         await _dbSet.FindAsync(new object[] { id }, cancellationToken);
 
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        await _dbSet.ToListAsync(cancellationToken);
+        await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
 
     public async Task<IEnumerable<T>> FindAsync(
         Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default) =>
-        await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+        await _dbSet.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 
     public virtual async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
         int pageNumber, int pageSize,
         Expression<Func<T, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var query = predicate is not null ? _dbSet.Where(predicate) : _dbSet;
+        var query = predicate is not null ? _dbSet.Where(predicate).AsNoTracking() : _dbSet.AsNoTracking();
         var total = await query.CountAsync(cancellationToken);
         var items = await query
             .Skip((pageNumber - 1) * pageSize)

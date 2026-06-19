@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartInvoice.API.Contracts.Requests;
 using SmartInvoice.Application.Features.Clients.Commands;
 using SmartInvoice.Application.Features.Clients.Queries.GetClients;
 using SmartInvoice.Application.Interfaces;
@@ -62,5 +63,3 @@ public class ClientsController : ControllerBase
         return NoContent();
     }
 }
-
-public record ClientRequest(string Name, string Email, string? Phone, string? CompanyName);

@@ -22,15 +22,18 @@ public class CreateInvoiceHandler : IRequestHandler<CreateInvoiceCommand, Invoic
     private readonly IRepository<Invoice> _invoiceRepository;
     private readonly IRepository<Client> _clientRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IInvoiceDomainService _invoiceDomainService;
 
     public CreateInvoiceHandler(
         IRepository<Invoice> invoiceRepository,
         IRepository<Client> clientRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IInvoiceDomainService invoiceDomainService)
     {
         _invoiceRepository = invoiceRepository;
         _clientRepository = clientRepository;
         _unitOfWork = unitOfWork;
+        _invoiceDomainService = invoiceDomainService;
     }
 
     public async Task<InvoiceDto> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
@@ -41,22 +44,15 @@ public class CreateInvoiceHandler : IRequestHandler<CreateInvoiceCommand, Invoic
         var count = await _invoiceRepository.CountAsync(cancellationToken: cancellationToken);
         var invoiceNumber = $"INV-{(count + 1):D4}";
 
-        var invoice = Invoice.Create(
-            invoiceNumber, request.ClientId, request.UserId,
-            request.IssuedDate, request.DueDate, request.Currency);
-
-        invoice.Notes = request.Notes;
-
-        foreach (var item in request.Items)
-        {
-            invoice.AddItem(new InvoiceItem
-            {
-                Description = item.Description,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                InvoiceId = invoice.Id
-            });
-        }
+        var invoice = _invoiceDomainService.CreateInvoice(
+            invoiceNumber,
+            request.ClientId,
+            request.UserId,
+            request.IssuedDate,
+            request.DueDate,
+            request.Currency,
+            request.Notes,
+            request.Items.Select(i => (i.Description, i.Quantity, i.UnitPrice)));
 
         await _invoiceRepository.AddAsync(invoice, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

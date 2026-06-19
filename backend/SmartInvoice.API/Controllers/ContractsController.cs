@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartInvoice.API.Contracts.Requests;
 using SmartInvoice.Application.Features.Contracts.Commands;
 using SmartInvoice.Application.Interfaces;
 
@@ -52,7 +53,3 @@ public class ContractsController : ControllerBase
         return NoContent();
     }
 }
-
-public record CreateContractRequest(
-    Guid ClientId, string Title, string Content,
-    DateTime StartDate, DateTime? EndDate);
