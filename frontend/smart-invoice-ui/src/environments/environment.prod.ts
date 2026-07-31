@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: "https://your-render-service.onrender.com/api",
+  apiUrl: "https://smartinvoice-vky3.onrender.com/api",
 };
