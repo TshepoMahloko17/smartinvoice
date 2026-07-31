@@ -134,7 +134,8 @@ handle contracts, and visualize financial performance — all in one place.
 | -------------- | ------------------------------- |
 | Docker Compose | Local full-stack environment    |
 | GitHub Actions | CI — build + test on every push |
-| Railway        | Backend hosting (PostgreSQL)    |
+| Render         | Backend hosting                 |
+| Neon           | PostgreSQL database             |
 | Vercel         | Frontend hosting                |
 | Nginx          | Serve Angular + proxy `/api`    |
 
