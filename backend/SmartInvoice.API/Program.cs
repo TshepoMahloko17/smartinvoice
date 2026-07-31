@@ -54,7 +54,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
-    ?? new[] { "http://localhost:4200", "https://smartinvoice-theta.vercel.app" };
+    ?? new[] { "http://localhost:4200", "https://smartinvoice-theta.vercel.app", "https://smartinvoice-vky3.onrender.com" };
 
 // CORS
 builder.Services.AddCors(options =>
