@@ -15,9 +15,9 @@
 
 ## � Live Demo
 
-|                 | Link                                                                                            |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)                          |
+|                 | Link                                                                          |
+| --------------- | ----------------------------------------------------------------------------- |
+| **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)        |
 | **Backend API** | [smartinvoice-api.onrender.com](https://smartinvoice-api.onrender.com/health) |
 
 > Demo credentials: `admin@smartinvoice.app` / `Admin@123`
