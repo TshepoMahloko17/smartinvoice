@@ -15,10 +15,10 @@
 
 ## � Live Demo
 
-|                 | Link                                                                                            |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)                          |
-| **Backend API** | [smartinvoice-production.up.railway.app](https://smartinvoice-production.up.railway.app/health) |
+|                 | Link                                                                          |
+| --------------- | ----------------------------------------------------------------------------- |
+| **Frontend**    | [smartinvoice-theta.vercel.app](https://smartinvoice-theta.vercel.app)        |
+| **Backend API** | [smartinvoice-api.onrender.com](https://smartinvoice-api.onrender.com/health) |
 
 > Demo credentials: `admin@smartinvoice.app` / `Admin@123`
 
@@ -150,7 +150,7 @@ handle contracts, and visualize financial performance — all in one place.
 | **Security Headers**         | `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy` |
 | **Content Security Policy**  | `frame-ancestors 'none'` via Nginx (production)                                                          |
 | **JWT Key Strength Check**   | Startup throws if key is < 32 chars or default dev value (production only)                               |
-| **HTTPS Enforcement**        | Railway terminates TLS; HTTPS redirect in production                                                     |
+| **HTTPS Enforcement**        | Render terminates TLS; HTTPS redirect in production                                                      |
 | **Structured Audit Logging** | Serilog logs request pipeline; logging behaviour never serialises request bodies                         |
 | **Error Snackbar**           | Global HTTP error interceptor shows user-friendly messages for all 4xx/5xx responses                     |
 | **Token Storage**            | JWT tokens stored in `sessionStorage` — cleared automatically on tab/window close                        |
